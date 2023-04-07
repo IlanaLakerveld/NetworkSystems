@@ -1,8 +1,5 @@
 package com.nedap.university;
 
-import com.nedap.university.MakeAck;
-import com.nedap.university.Reveiver;
-import com.nedap.university.Sending;
 import com.nedap.university.Server.fileDoesNotExistError;
 
 import java.io.File;
@@ -10,7 +7,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.Arrays;
 
 public class Main {
 
@@ -43,12 +39,11 @@ public class Main {
                 byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
                 socket.receive(request) ;
-                System.out.println(request.getPort());
-                System.out.println(request.getAddress());
-                System.out.println(request.getData());
-                //byte[] slice = Arrays.copyOfRange(request.getData(), 0,request.getLength() ) ;
-                String a= new String(buffer,0, request.getLength());
 
+                String a= new String(buffer,0, request.getLength());
+                // todo change hard coded
+                File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/week2/rdt_java/rdtcInput1.png") ;
+                byte[] bytefile =  LoadFile.loadFile(file);
 
                 // kijk of je iets binnen krijgt
                 // als je iets binnen krijgt handel het af
@@ -101,7 +96,7 @@ public class Main {
             throw new fileDoesNotExistError() ;
         }
         else{
-            Sending.Sending();
+            Sending.Sending(file);
         }
     }
 
