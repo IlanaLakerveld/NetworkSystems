@@ -1,12 +1,14 @@
 package com.nedap.university;
 
+import java.io.File;
+
 /**
  *  This class is used to send a file.
  *  This class assumes The file exist.
  */
 public final class Sending {
 
-    public static void Sending() {
+    public static void Sending(File file) {
 
         Integer[] fileContent;
         int dataSizePacket;
