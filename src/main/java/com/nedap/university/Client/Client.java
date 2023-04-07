@@ -12,10 +12,9 @@ public class Client {
 
 
     public void getRequest(String filename) throws UnknownHostException {
-        MakePacket.makePacket(filename.getBytes()) ;
-        byte[] buffer = new byte[512];
-        buffer = filename.getBytes();
-        // todo je get request naar bytes omzetten
+
+        byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, (byte) 0, 0, 0);
+        byte[] buffer = packet ; 
 //        InetAddress address = InetAddress.getByName("127.0.0.1");
         InetAddress address = InetAddress.getByName("localhost");
         int port = 64888 ; //toDo change
