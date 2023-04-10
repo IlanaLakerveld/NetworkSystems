@@ -8,6 +8,7 @@ public final class MakePacket {
     public static int personalizedHeaderLength = 16;
 
 
+
     /**
      * @param payload actual data
      * @return the packet you can send nicely ordered.
@@ -71,7 +72,7 @@ public final class MakePacket {
      * @param checksumInput input for the checksum
      * @return a 2 byte array containing the answer of the checksum
      */
-    private static int checksum(int[] checksumInput) {
+    public static int checksum(int[] checksumInput) {
 
         int sum = 0;
         int length = checksumInput.length;
