@@ -58,10 +58,12 @@ public class Sending {
 
                     // TOdo give logical input for checksum
                     // check if the packet is correct.
-//                    if (checksum == MakePacket.checksum(new int[]{0, 0})) {
+
+                    if (checksum == MakePacket.checksum(MakePacket.getInputforChecksumWithoutHeader(ackPacket))) {
+                        System.out.println("checksum correct");
                     filePointer += datalen;
                     stopSending = false;
-//                    }
+                   }
                 }
 
 
