@@ -38,8 +38,8 @@ public final class MakePacket {
      * @return The personalizedHeader as a byte array
      */
 
-    // todo add a checksum
-    private static byte[] personalizedHeader(int sequenceNumber, int ack, byte flags, int windowSize, int sessionNumber) {
+
+    public static byte[] personalizedHeader(int sequenceNumber, int ack, byte flags, int windowSize, int sessionNumber) {
         byte[] header = new byte[personalizedHeaderLength];
         // sequence number
         header[0] = (byte) ((sequenceNumber >> 24) & 0xff);
@@ -56,8 +56,13 @@ public final class MakePacket {
         // flags
         header[9] = flags;
         // window size
-        header[10] = (byte) (windowSize >> 8);
-        header[11] = (byte) (windowSize & 0xff);
+        if(windowSize <= 0xffff) {
+            header[10] = (byte) (windowSize >> 8);
+            header[11] = (byte) (windowSize & 0xff);
+        }
+        else{
+            System.out.println("todo implement some kind of error to prevent to high number ");
+        }
 
         // session number
         header[14] = (byte) (sessionNumber >> 8);
@@ -146,7 +151,17 @@ public final class MakePacket {
         return ((packet[14]& 0xff)<<8)  | (packet[15]&0xff);
     }
 
-    public static byte[] getInputforChecksumWithoutHeader(byte[] packet){
+    /**
+     *
+     * @param packet input inclusive the own created header
+     * @return window size
+     */
+    public static int getWindowsize(byte[] packet){
+
+        return ((packet[10]& 0xff)<<8)  | (packet[11]&0xff);
+    }
+
+    public static byte[] getInputForChecksumWithoutHeader(byte[] packet){
         byte[] bytesForChecksum = Arrays.copyOfRange(packet, 0, MakePacket.personalizedHeaderLength);
         bytesForChecksum[12]=0;
         bytesForChecksum[13]=0;
