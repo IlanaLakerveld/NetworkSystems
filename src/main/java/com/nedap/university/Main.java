@@ -23,7 +23,7 @@ public class Main {
         // setup
         running = true;
         System.out.println("Hello, Nedap University! ilana ");
-        int port = 62885;
+        int port = 62828;
         DatagramSocket socket;
         try {
             socket = new DatagramSocket(port);
@@ -100,7 +100,7 @@ public class Main {
             // todo maak hier iets dat zegt met een vraag wil je dit overschijven?
 //        }
 //        else {
-            // toDo change
+            // toDo change are magic numbers
             byte[] ack = MakePacket.makePacket(new byte[]{1},0,0,(byte) 0,0,0);
 
             DatagramPacket packet = new DatagramPacket(ack,0,ack.length,request.getAddress(),request.getPort()) ;

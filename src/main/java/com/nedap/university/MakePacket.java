@@ -1,5 +1,7 @@
 package com.nedap.university;
 
+import java.util.Arrays;
+
 /**
  * This class create header according to my protocol
  */
@@ -56,12 +58,18 @@ public final class MakePacket {
         // window size
         header[10] = (byte) (windowSize >> 8);
         header[11] = (byte) (windowSize & 0xff);
-        // checksum
-        header[12] = 0;
-        header[13] = 0;
+
         // session number
         header[14] = (byte) (sessionNumber >> 8);
         header[15] = (byte) (sessionNumber & 0xff);
+
+        //todo only header in checksum??
+        int outputChecksum = checksum(header) ;
+
+        // checksum
+        header[12] = (byte) (outputChecksum >> 8);
+        header[13] = (byte) (outputChecksum & 0xff);
+
         return header;
     }
 
@@ -72,7 +80,7 @@ public final class MakePacket {
      * @param checksumInput input for the checksum
      * @return a 2 byte array containing the answer of the checksum
      */
-    public static int checksum(int[] checksumInput) {
+    public static int checksum(byte[] checksumInput) {
 
         int sum = 0;
         int length = checksumInput.length;
@@ -101,26 +109,51 @@ public final class MakePacket {
     }
 
 
-    public static int getSequenceNumber(byte[] payload){
-        int seqNum =  (((payload[0]&0xff) << 24) | ((payload[1]&0xff) << 16) | ((payload[2]&0xff) << 8)  | payload[3] & 0xff );
-        return seqNum ;
+    /**
+     *
+     * @param packet input inclusive the own created header
+     * @return sequence number
+     */
+    public static int getSequenceNumber(byte[] packet){
+        return (((packet[0]&0xff) << 24) | ((packet[1]&0xff) << 16) | ((packet[2]&0xff) << 8)  | packet[3] & 0xff );
     }
 
-    public static int getCheckSumInteger(byte[] payload){
-        int checksum = (payload[12]& 0xff << 8) | payload[13];
+    /**
+     *
+     * @param packet input inclusive the own created header
+     * @return  checksum value
+     */
+    public static int getCheckSumInteger(byte[] packet){
 
-        return checksum ;
+        return ((packet[12]& 0xff) << 8) | (packet[13]&0xff);
     }
 
-    public static int getAckNumber(byte[] payload){
-        int ack =  ((payload[4] << 24) | ((payload[5]&0xff) << 16) | ((payload[6] &0xff) << 8) | (payload[7] & 0xff));
-        return ack ;
+    /**
+     *
+     * @param packet input inclusive the own created header
+     * @return acknowledgement number
+     */
+    public static int getAckNumber(byte[] packet){
+        return ((packet[4] << 24) | ((packet[5]&0xff) << 16) | ((packet[6] &0xff) << 8) | (packet[7] & 0xff));
     }
 
-    public static int getSessionNumber(byte[] payload){
-        int sessionNumber = ((payload[14]& 0xff)<<8)  |  payload[15]  ;
-        return sessionNumber ;
+    /**
+     *
+     * @param packet input inclusive the own created header
+     * @return session number
+     */
+    public static int getSessionNumber(byte[] packet){
+        return ((packet[14]& 0xff)<<8)  | (packet[15]&0xff);
     }
+
+    public static byte[] getInputforChecksumWithoutHeader(byte[] packet){
+        byte[] bytesForChecksum = Arrays.copyOfRange(packet, 0, MakePacket.personalizedHeaderLength);
+        bytesForChecksum[12]=0;
+        bytesForChecksum[13]=0;
+        return bytesForChecksum ;
+    }
+
+
 
 
 }

@@ -16,7 +16,7 @@ public class Client {
     public InetAddress address;
 
     public Client() {
-        port = 62885;
+        port = 62828;
         try {
             address = InetAddress.getByName("localhost");
             //        InetAddress address = InetAddress.getByName("127.0.0.1");
