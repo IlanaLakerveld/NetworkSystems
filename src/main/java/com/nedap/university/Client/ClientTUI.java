@@ -1,42 +1,53 @@
 package com.nedap.university.Client;
 
-import java.io.File;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
 
 public class ClientTUI {
 
-    static String help = "Here some explanations to use the TUI. The commands you can use are : " +
-            "GET~filename  to get a file from the server " +
-            "SEND~filename  to send a file from the server" +
-            "DELETE~filename to remove a filename from the server+ " +
-            "LISTFILES";
+    static String help = "Here some explanations to use the TUI.\nThe commands you can use are :\n" +
+            "GET~filename  to get a file from the server\n" +
+            "SEND~filename  to send a file from the server\n" +
+            "DELETE~filename to remove a filename from the server\n" +
+            "LISTFILES to get al list of posible files";
 
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        //TOdo change that client has input for the server.
         Client client = new Client();
-        ;
+        InetAddress serveradress = getInetAddress(scanner);
+        int portnumber = getPortNumber(scanner);
+
         System.out.println(help);
 
-        System.out.println("type your input");
-        // je mag niet eerst een data connectie hebben om dit te kunnen doen moet je dan specifiek iets neerzetten wat dan ook de port enzo weergeeft?
+        while (true) {
+            System.out.println("type your input");
 
+            String input = scanner.nextLine();
+            String[] splittedLine = input.split("~");
+            switch (splittedLine[0]) {
+                case "GET" -> getRequest(client, splittedLine[1]);
+                case "SEND" -> sendRequest(client, splittedLine[1]);
+                case "DELETE" -> deleteRequest(splittedLine[1]);
+                case "LISTFILES" -> getList();
+                case "HELP" -> System.out.println(help);
 
-        String input = scanner.nextLine();
-        String[] splittedLine = input.split("~");
-        switch (splittedLine[0]) {
-            case "GET" -> getRequest(client, splittedLine[1]);
-            case "SEND" -> sendRequest(client, splittedLine[1]);
-            case "DELETE" -> deleteRequest(splittedLine[1]);
-            case "LISTFILES" -> getList();
+                default -> System.out.println("Do not understand this line :" + input);
+            }
 
-            default -> System.out.println("Do not understand this line :" + input);
+            System.out.println("If you want to quit the program type : quit.");
+            if (scanner.nextLine().equalsIgnoreCase("quit")) {
+                break;
+            }
         }
 
 
     }
+
+
 
 
     private static void getRequest(Client client, String filename) {
@@ -44,9 +55,8 @@ public class ClientTUI {
 
     }
 
-    private static void sendRequest(Client client,String filename) {
+    private static void sendRequest(Client client, String filename) {
         client.sendRequest(filename);
-        //toDO
     }
 
     private static void deleteRequest(String filename) {
@@ -56,4 +66,51 @@ public class ClientTUI {
     private static void getList() {
         //toDO
     }
+
+    private static InetAddress getInetAddress(Scanner scanner) {
+        boolean okeInputAddress = false;
+        InetAddress addressServer = null;
+        while (!okeInputAddress) {
+            System.out.println("what server address do you want? ");
+            String inputAddress = scanner.nextLine();
+
+            try {
+
+                addressServer = InetAddress.getByName(inputAddress);
+                okeInputAddress = true;
+            } catch (UnknownHostException e) {
+                System.out.println("please choose a correct input address");
+
+            }
+
+        }
+        return addressServer;
+    }
+
+    private static int getPortNumber(Scanner scanner) {
+
+        int port;
+        while (true) {
+            System.out.println("Import the port number of the server");
+            String number = scanner.nextLine();
+
+            try {
+                port = Integer.parseInt(number);
+            } catch (NumberFormatException e) {
+                System.out.println("This is not a number, please enter a number");
+
+                continue;
+            }
+
+            if (port < 1 || port > 65535) {
+                System.out.println("Port number should be between 1 and 65535");
+
+            } else {
+                break;
+            }
+
+        }
+        return port;
+    }
+
 }

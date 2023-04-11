@@ -35,7 +35,13 @@ public final class Fileclass {
     }
 
     public static void makeFileFromBytes(String filename, byte[] fileInBytes){
-        File fileToWrite = new File(filename);
+        String filenametest = filename.trim();
+        File fileToWrite = new File(filenametest);
+        try {
+            fileToWrite.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         try (FileOutputStream fileStream = new FileOutputStream(fileToWrite)) {
             for (byte fileContent : fileInBytes) {
                 fileStream.write(fileContent);
