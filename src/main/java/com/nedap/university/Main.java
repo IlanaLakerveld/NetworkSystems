@@ -6,25 +6,24 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+/**
+ * This is the server side. The request from the clients are come in here.
+ * Type of request the server can handel : GET,SEND,REMOVE,(REPLACE)
+ */
+
 public class Main {
 
     private static boolean keepAlive = true;
     private static boolean running = false;
 
-    private byte[] buffer = new byte[512];
 
-    //    public QuoteServer(int port) throws SocketException {
-//        socket = new DatagramSocket(port);
-//        random = new Random();
-//    }
-    private Main() {
-    }
+
 
     public static void main(String[] args) {
-
+        // setup
         running = true;
         System.out.println("Hello, Nedap University! ilana ");
-        int port = 0;
+        int port = 62885;
         DatagramSocket socket;
         try {
             socket = new DatagramSocket(port);
@@ -34,31 +33,24 @@ public class Main {
         System.out.println("local port is : " + socket.getLocalPort());
         initShutdownHook();
 
+        // waiting for input
         while (keepAlive) {
             try {
                 byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
-                DatagramPacket request = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
-                socket.receive(request);
+                DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+                socket.receive(request);  // waiting for the request
 
-                String a = new String(buffer, 0, request.getLength());
-                GETAnswers(request, socket, a  );
-                // todo change hard coded
+                // todo how do you want to split
+                String a = new String(buffer, MakePacket.personalizedHeaderLength, request.getLength());
+                String[] splittedLine = a.split("~");
 
-
-                // kijk of je iets binnen krijgt
-                // als je iets binnen krijgt handel het af
-                // opties  :
-                // Een nieuwe aanvraag : GET, SEND, REMOVE, LIST
-                // BIj GET or REMOVE moet je checken of bestand uberhoud wel bestaat
-                // als bestaat die speciefieke dingen uitvoeren
-                // als bestand niet bestaat, geef een fout melding terug.
-                // als send is en bestaat als dan kan vragen of je wil replacen of moet echt replace command zijn
-                // List moet de server een lijst maken met alle files, en die sturen als txt?
-
-
-                // als bij iets hoort wat al wel bestaat??
-                // zorg dat bij juiste tread komt
-                // als onzin is ? negeer deze onzin
+                if(splittedLine[0].equals("SEND")){
+                    System.out.println("start receiving");
+                    ReceiveFile(request, socket, splittedLine[1]);
+                }
+                else{
+                    GETAnswers(request, socket, a  );
+                }
 
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -90,24 +82,34 @@ public class Main {
     }
 
 
+
     private static void GETAnswers(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
 //        File file = new File(filename);
-        File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/large.pdf");
-        byte[] bytefile = LoadFile.loadFile(file);
+        File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/medium.pdf");
+        byte[] bytefile = Fileclass.loadFile(file);
         Sending send = new Sending();
         send.sending(bytefile,socket, request.getAddress(),request.getPort());
 
 
     }
 
-    private void Send(String filename) {
-        File file = new File(filename);
-        if (file.exists()) {
+    private static void ReceiveFile(DatagramPacket request, DatagramSocket socket,String filename) throws IOException {
+//        File file = new File(filename);
+//        if (file.exists()) {
+            System.out.println("file already exist");
             // todo maak hier iets dat zegt met een vraag wil je dit overschijven?
-        } else {
-            // todo make an acknowlegdement  before go into receiving mode.
-            Reveiver reveiver = new Reveiver();
-//            reveiver.receiver(filename) ;
-        }
+//        }
+//        else {
+            // toDo change
+            byte[] ack = MakePacket.makePacket(new byte[]{1},0,0,(byte) 0,0,0);
+
+            DatagramPacket packet = new DatagramPacket(ack,0,ack.length,request.getAddress(),request.getPort()) ;
+            socket.send(packet);
+
+            Receiver receiver = new Receiver();
+            byte[] receivedfile = receiver.receiver(socket, request.getAddress(), request.getPort());
+            Fileclass.makeFileFromBytes(filename, receivedfile);
+//        }
+
     }
 }
