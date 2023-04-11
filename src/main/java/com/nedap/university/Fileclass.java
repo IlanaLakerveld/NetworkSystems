@@ -2,9 +2,9 @@ package com.nedap.university;
 
 import java.io.*;
 
-public final class LoadFile {
+public final class Fileclass {
 
-    //Todo from challege 2
+    // Todo from challenge 2
     public static byte[] loadFile(File fileToTransmit) {
 
         if (!fileToTransmit.exists()) {
@@ -22,12 +22,14 @@ public final class LoadFile {
 
                     fileContents[i] = (byte) nextByte;
                 }
+                fileStream.close();
                 return fileContents;
 
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+
         }
 
     }
@@ -38,11 +40,13 @@ public final class LoadFile {
             for (byte fileContent : fileInBytes) {
                 fileStream.write(fileContent);
             }
+            fileStream.close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
     }
 
 }

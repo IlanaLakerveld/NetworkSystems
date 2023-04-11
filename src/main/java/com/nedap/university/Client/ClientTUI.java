@@ -16,7 +16,8 @@ public class ClientTUI {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Client client=new Client();;
+        Client client = new Client();
+        ;
         System.out.println(help);
 
         System.out.println("type your input");
@@ -26,8 +27,8 @@ public class ClientTUI {
         String input = scanner.nextLine();
         String[] splittedLine = input.split("~");
         switch (splittedLine[0]) {
-            case "GET" -> getRequest(client,splittedLine[1]);
-            case "SEND" -> sendRequest(splittedLine[1]);
+            case "GET" -> getRequest(client, splittedLine[1]);
+            case "SEND" -> sendRequest(client, splittedLine[1]);
             case "DELETE" -> deleteRequest(splittedLine[1]);
             case "LISTFILES" -> getList();
 
@@ -38,16 +39,13 @@ public class ClientTUI {
     }
 
 
-    private static void getRequest(Client client,String filename) {
-        try {
-            client.getRequest(filename);
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-        //toDO
+    private static void getRequest(Client client, String filename) {
+        client.getRequest(filename);
+
     }
 
-    private static void sendRequest(String filename) {
+    private static void sendRequest(Client client,String filename) {
+        client.sendRequest(filename);
         //toDO
     }
 
@@ -55,7 +53,7 @@ public class ClientTUI {
         //toDO
     }
 
-    private static void getList(){
+    private static void getList() {
         //toDO
     }
 }

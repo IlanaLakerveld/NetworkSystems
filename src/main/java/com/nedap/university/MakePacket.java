@@ -1,7 +1,7 @@
 package com.nedap.university;
 
 /**
- * This class create header according to  my protocol
+ * This class create header according to my protocol
  */
 
 public final class MakePacket {
@@ -98,6 +98,28 @@ public final class MakePacket {
         sum = ~sum & 0xFFFF;
 
         return sum;
+    }
+
+
+    public static int getSequenceNumber(byte[] payload){
+        int seqNum =  (((payload[0]&0xff) << 24) | ((payload[1]&0xff) << 16) | ((payload[2]&0xff) << 8)  | payload[3] & 0xff );
+        return seqNum ;
+    }
+
+    public static int getCheckSumInteger(byte[] payload){
+        int checksum = (payload[12]& 0xff << 8) | payload[13];
+
+        return checksum ;
+    }
+
+    public static int getAckNumber(byte[] payload){
+        int ack =  ((payload[4] << 24) | ((payload[5]&0xff) << 16) | ((payload[6] &0xff) << 8) | (payload[7] & 0xff));
+        return ack ;
+    }
+
+    public static int getSessionNumber(byte[] payload){
+        int sessionNumber = ((payload[14]& 0xff)<<8)  |  payload[15]  ;
+        return sessionNumber ;
     }
 
 
