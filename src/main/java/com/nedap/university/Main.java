@@ -23,7 +23,7 @@ public class Main {
         // setup
         running = true;
         System.out.println("Hello, Nedap University! ilana ");
-        int port = 62828;
+        int port = 62825;
         DatagramSocket socket;
         try {
             socket = new DatagramSocket(port);
@@ -46,7 +46,7 @@ public class Main {
 
                 if(splittedLine[0].equals("SEND")){
                     System.out.println("start receiving");
-                    ReceiveFile(request, socket, splittedLine[1]);
+                    ReceiveFile(request, socket, splittedLine[1])  ;
                 }
                 else{
                     GETAnswers(request, socket, a  );
