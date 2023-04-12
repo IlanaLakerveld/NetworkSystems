@@ -31,7 +31,7 @@ public class ClientTUI {
             switch (splittedLine[0]) {
                 case "GET" -> getRequest(client, splittedLine[1]);
                 case "SEND" -> sendRequest(client, splittedLine[1]);
-                case "DELETE" -> deleteRequest(splittedLine[1]);
+                case "DELETE" -> deleteRequest(client,splittedLine[1]);
                 case "LISTFILES" -> getList();
                 case "HELP" -> System.out.println(help);
 
@@ -59,8 +59,8 @@ public class ClientTUI {
         client.sendRequest(filename);
     }
 
-    private static void deleteRequest(String filename) {
-        //toDO
+    private static void deleteRequest(Client client, String filename) {
+        client.deleteRequest(filename);
     }
 
     private static void getList() {
