@@ -29,7 +29,7 @@ public  class Receiver {
                 int checksum = MakePacket.getCheckSumInteger(receivedPacket) ;
                 // TOdo give logical input for checksum and add the checksum
 
-                //TODO CHANGe
+
                 if ((checksum != MakePacket.checksum(MakePacket.getInputForChecksumWithoutHeader(receivedPacket)))){ //
                     System.out.println("checksum is incorrect");
                 }
