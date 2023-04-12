@@ -52,7 +52,6 @@ public class ClientTUI {
 
     private static void getRequest(Client client, String filename) {
         client.getRequest(filename);
-
     }
 
     private static void sendRequest(Client client, String filename) {
@@ -64,9 +63,16 @@ public class ClientTUI {
     }
 
     private static void getList() {
+        System.out.println("not implemented yet");
         //toDO
     }
 
+
+    /**
+     * Get the InetAddress from user input.
+     * Checks if the input is am inetAddress.
+     * @return InetAddress
+     */
     private static InetAddress getInetAddress(Scanner scanner) {
         boolean okeInputAddress = false;
         InetAddress addressServer = null;
@@ -87,6 +93,10 @@ public class ClientTUI {
         return addressServer;
     }
 
+    /**
+     * Get the port number from user input and checks it's an  integer.
+     * @return portNumber
+     */
     private static int getPortNumber(Scanner scanner) {
 
         int port;

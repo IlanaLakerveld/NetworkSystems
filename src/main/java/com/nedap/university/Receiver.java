@@ -6,6 +6,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Arrays;
 
+/**
+ * Uses this class if you want to receive a file.
+ * This class looks at the input packets and if the right packet and checksum is correct then added it to the byte file.
+ * At the end it returns a byte array containing the requested file.
+ * If there is something wrong and an error message is send this class stops and the error messages will be returned.
+ */
 public  class Receiver {
 
     //todo change name
