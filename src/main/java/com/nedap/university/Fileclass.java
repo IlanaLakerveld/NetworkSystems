@@ -2,16 +2,18 @@ package com.nedap.university;
 
 import java.io.*;
 
+/**
+ * This class changese file into bytes or bytes into files
+ */
 public final class Fileclass {
 
     // Todo from challenge 2
-    public static byte[] loadFile(File fileToTransmit) {
+    public static byte[] loadFile(File file) {
 
-        try (FileInputStream fileStream = new FileInputStream(fileToTransmit)) {
-            byte[] fileContents = new byte[(int) fileToTransmit.length()];
+        try (FileInputStream fileStream = new FileInputStream(file)) {
+            byte[] fileContents = new byte[(int) file.length()];
             for (int i = 0; i < fileContents.length; i++) {
-                int nextByte = fileStream.read();
-                fileContents[i] = (byte) nextByte;
+                fileContents[i] = (byte) fileStream.read();
             }
             fileStream.close();
             return fileContents;
@@ -26,6 +28,7 @@ public final class Fileclass {
     public static void makeFileFromBytes(String filename, byte[] fileInBytes) {
         String filenametest = filename.trim();
         File fileToWrite = new File(filenametest);
+        // because file does not exist
         try {
             fileToWrite.createNewFile();
         } catch (IOException e) {
@@ -35,7 +38,8 @@ public final class Fileclass {
             for (byte fileContent : fileInBytes) {
                 fileStream.write(fileContent);
             }
-            fileStream.close(); //toDO why is this redundant?
+            fileStream.close();
+            //toDO why is this redundant?
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

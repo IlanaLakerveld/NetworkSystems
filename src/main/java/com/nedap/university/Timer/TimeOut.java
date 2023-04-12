@@ -6,7 +6,7 @@ import java.net.DatagramPacket;
 import java.util.Timer;
 
 /**
- * Set a timer for a time and after that time it calles a funtion.
+ * Set a timer for a time and after that time it calls a function TimeOut function.
  */
 public class TimeOut {
     Timer timer ;
