@@ -16,7 +16,7 @@ public class Client {
     public InetAddress address;
 
     public Client() {
-        port = 62837;
+        port = 62830;
         try {
             address = InetAddress.getByName("localhost");
             //        InetAddress address = InetAddress.getByName("127.0.0.1");
@@ -84,6 +84,31 @@ public class Client {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+
+    }
+
+    public void deleteRequest(String filename){
+        byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, (byte) MakePacket.setFlags(false,false,false,false,true,false), 0, 0);
+
+        DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
+        try {
+            DatagramSocket socket = new DatagramSocket();
+            socket.send(packetToSend);
+            byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
+            DatagramPacket ackAnswer = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
+            socket.receive(ackAnswer);
+            if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false,false,false,false,false,true)){
+                String errorMessage = new String(buffer, MakePacket.personalizedHeaderLength, ackAnswer.getLength());
+                System.out.println("ERROR " + errorMessage.trim());
+            }
+            else if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false,true,false,false,false,false)){
+                System.out.println("file is deleted");
+            }
+        }
+        catch (IOException e){
+            throw new RuntimeException();
         }
 
 

@@ -9,7 +9,6 @@ public final class Fileclass {
 
         try (FileInputStream fileStream = new FileInputStream(fileToTransmit)) {
             byte[] fileContents = new byte[(int) fileToTransmit.length()];
-
             for (int i = 0; i < fileContents.length; i++) {
                 int nextByte = fileStream.read();
                 fileContents[i] = (byte) nextByte;
