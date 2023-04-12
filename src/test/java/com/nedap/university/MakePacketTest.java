@@ -17,7 +17,6 @@ class MakePacketTest {
         int checksum = MakePacket.checksum(arr);
         assertEquals(65535,checksum);
         byte[] arr2 = new byte[64] ;
-//        Arrays.fill( arr2, (byte) 1 );
         arr2[1]=1;
         int check2 = MakePacket.checksum(arr2);
         assertEquals(65534,check2);
@@ -32,13 +31,6 @@ class MakePacketTest {
         Arrays.fill( arr4, (byte) 255 );
         int check4 = MakePacket.checksum(arr4);
         assertEquals(0,check4);
-
-
-
-
-
-
-
 
     }
 
@@ -73,5 +65,17 @@ class MakePacketTest {
 
     }
 
+    @Test
+    public void setFlagsTest(){
+        byte flags = MakePacket.setFlags(false, false);
+        assertEquals(0,flags);
+        byte flags1 = MakePacket.setFlags(true, false);
+        assertEquals(1,flags1);
+        byte flags2 = MakePacket.setFlags(false, true);
+        assertEquals(2,flags2);
+        byte flags3 = MakePacket.setFlags(true, true);
+        assertEquals(3,flags3);
+
+    }
 
 }

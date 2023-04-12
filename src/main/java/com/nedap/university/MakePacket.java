@@ -120,12 +120,13 @@ public final class MakePacket {
      * @return sequence number
      */
     public static int getSequenceNumber(byte[] packet){
+
         return (((packet[0]&0xff) << 24) | ((packet[1]&0xff) << 16) | ((packet[2]&0xff) << 8)  | packet[3] & 0xff );
     }
 
     /**
      *
-     * @param packet input inclusive the own created header
+     * @param packet input including the own created header
      * @return  checksum value
      */
     public static int getCheckSumInteger(byte[] packet){
@@ -135,7 +136,7 @@ public final class MakePacket {
 
     /**
      *
-     * @param packet input inclusive the own created header
+     * @param packet input including the own created header
      * @return acknowledgement number
      */
     public static int getAckNumber(byte[] packet){
@@ -144,7 +145,7 @@ public final class MakePacket {
 
     /**
      *
-     * @param packet input inclusive the own created header
+     * @param packet input including the own created header
      * @return session number
      */
     public static int getSessionNumber(byte[] packet){
@@ -153,7 +154,7 @@ public final class MakePacket {
 
     /**
      *
-     * @param packet input inclusive the own created header
+     * @param packet input including the own created header
      * @return window size
      */
     public static int getWindowsize(byte[] packet){
@@ -161,11 +162,35 @@ public final class MakePacket {
         return ((packet[10]& 0xff)<<8)  | (packet[11]&0xff);
     }
 
+
+    /**
+     * removes the values of the checksum to get the required input for the checksum
+     * @param packet input including the own created header
+     * @return a byte array you can use as input for the function checksum
+     */
     public static byte[] getInputForChecksumWithoutHeader(byte[] packet){
         byte[] bytesForChecksum = Arrays.copyOfRange(packet, 0, MakePacket.personalizedHeaderLength);
         bytesForChecksum[12]=0;
         bytesForChecksum[13]=0;
         return bytesForChecksum ;
+    }
+
+
+    /**
+     *
+     * @param FIN true if fin flag needs to be set
+     * @param ACK true if ack flag needs to be set
+     * @return byte flag for the header
+     */
+    public static byte setFlags(boolean FIN,boolean ACK){
+        byte flags =0;
+        if(FIN){
+            flags += 1 ;
+        }
+        if(ACK){
+            flags += 1 << 1 ;
+        }
+        return flags ;
     }
 
 
