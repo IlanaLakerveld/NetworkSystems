@@ -35,7 +35,7 @@ public  class Receiver {
                 }
 
                 else{
-                    System.out.println("checksum if correct");
+
                 // toDo change sending???
                     // sending an acknowledgement
                     byte[] ack = MakePacket.makePacket(new byte[]{1},0,seqNum,(byte) 0,windowSize, MakePacket.getSessionNumber(receivedPacket));

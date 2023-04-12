@@ -23,7 +23,7 @@ public class Main {
         // setup
         running = true;
         System.out.println("Hello, Nedap University! ilana ");
-        int port = 62825;
+        int port = 62824;
         DatagramSocket socket;
         try {
             socket = new DatagramSocket(port);
@@ -87,8 +87,8 @@ public class Main {
 //        File file = new File(filename);
         File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/medium.pdf");
         byte[] bytefile = Fileclass.loadFile(file);
-        Sending send = new Sending();
-        send.sending(bytefile,socket, request.getAddress(),request.getPort());
+        Sending send = new Sending(socket);
+        send.sending(bytefile, request.getAddress(),request.getPort());
 
 
     }
@@ -111,5 +111,11 @@ public class Main {
             Fileclass.makeFileFromBytes(filename, receivedfile);
 //        }
 
+    }
+
+    private static void deleteFile(String filename){
+        // todo Test dit of dit werkt
+//        File file = new File(filename);
+//        file.delete() ;
     }
 }
