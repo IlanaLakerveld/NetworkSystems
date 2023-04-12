@@ -23,7 +23,7 @@ public class Main {
         // setup
         running = true;
         System.out.println("Hello, Nedap University! ilana ");
-        int port = 62815;
+        int port = 62810;
         DatagramSocket socket;
         try {
             socket = new DatagramSocket(port);
@@ -40,16 +40,30 @@ public class Main {
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
                 socket.receive(request);  // waiting for the request
 
-                // todo how do you want to split
-                String a = new String(buffer, MakePacket.personalizedHeaderLength, request.getLength());
-                String[] splittedLine = a.split("~");
 
-                if(splittedLine[0].equals("SEND")){
+                String filename = new String(buffer, MakePacket.personalizedHeaderLength, Math.min(request.getLength(), buffer.length-MakePacket.personalizedHeaderLength));
+                byte flag = MakePacket.getFlag(request.getData());
+
+                if(flag == MakePacket.setFlags(false,false,true,false,false,false)){
                     System.out.println("start receiving");
-                    ReceiveFile(request, socket, splittedLine[1])  ;
+                    ReceiveFile(request, socket, filename)  ;
+                }
+                else if(flag == MakePacket.setFlags(false,false,false,true,false,false)){
+                    System.out.println("client want to get a packet");
+                    GETAnswers(request, socket, filename );
+                }
+                else if(flag == MakePacket.setFlags(false,false,false,false,true,false)){
+                    System.out.println("client want to remove a packet");
                 }
                 else{
-                    GETAnswers(request, socket, a  );
+                    System.out.println("do not understand the input") ;
+                            // todo send back that you do not underand
+                    String errormessage = "do not understand the input" ;
+
+                    byte[] errorPacket = MakePacket.makePacket(errormessage.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, false, false, false, false, true), 0, MakePacket.getSessionNumber(request.getData()));
+                    DatagramPacket errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length,request.getAddress(),request.getPort()) ;
+                    socket.send(errorPacketDatagram);
+
                 }
 
                 Thread.sleep(1000);
@@ -83,12 +97,14 @@ public class Main {
 
 
 
+
     private static void GETAnswers(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
 //        File file = new File(filename);
         File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/medium.pdf");
         byte[] bytefile = Fileclass.loadFile(file);
         Sending send = new Sending(socket);
         send.sending(bytefile, request.getAddress(),request.getPort());
+
 
 
     }
@@ -108,7 +124,10 @@ public class Main {
 
             Receiver receiver = new Receiver();
             byte[] receivedfile = receiver.receiver(socket, request.getAddress(), request.getPort());
-            Fileclass.makeFileFromBytes(filename, receivedfile);
+            if(!receivedfile.equals("error".getBytes())){
+                Fileclass.makeFileFromBytes(filename, receivedfile);
+            }
+
 //        }
 
     }

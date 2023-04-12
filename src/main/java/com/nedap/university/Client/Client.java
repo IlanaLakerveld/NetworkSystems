@@ -16,7 +16,7 @@ public class Client {
     public InetAddress address;
 
     public Client() {
-        port = 62815;
+        port = 62810;
         try {
             address = InetAddress.getByName("localhost");
             //        InetAddress address = InetAddress.getByName("127.0.0.1");
@@ -29,7 +29,7 @@ public class Client {
 
     public void getRequest(String filename) {
 
-        byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, (byte) 0, 0, 0);
+        byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, (byte) MakePacket.setFlags(false,false,false,true,false,false), 0, 0);
 
         DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
         try {
@@ -37,7 +37,14 @@ public class Client {
             datagramSocket.send(packetToSend);
             Receiver receiver = new Receiver();
             byte[] receivedFile = receiver.receiver(datagramSocket, address, port);
-            Fileclass.makeFileFromBytes(filename, receivedFile);
+            if(new String(receivedFile).equals("error")){
+                System.out.println("request failed");
+
+            }
+            else{
+                Fileclass.makeFileFromBytes(filename, receivedFile);
+            }
+
 
         } catch (SocketException e) {
             throw new RuntimeException(e);
@@ -48,24 +55,35 @@ public class Client {
     }
 
     public void sendRequest(String filename) {
+//        File file = new File(filename);
         File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/medium.pdf");
-        byte[] bytefile = Fileclass.loadFile(file);
+        if(!file.exists()){
+            System.out.println("can not send it because file does not exist");
+        }
+        else {
+            byte[] bytefile = Fileclass.loadFile(file);
 
-        String sendAndFilename = "SEND~"+filename;
-        byte[] packet = MakePacket.makePacket(sendAndFilename.getBytes(),0,0,(byte)0,0,0);
-        DatagramPacket packetToSend = new DatagramPacket(packet,packet.length,address,port);
-        try {
-            DatagramSocket socket = new DatagramSocket();
-            socket.send(packetToSend);
-            byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
-            DatagramPacket ackAnswer = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
-            socket.receive(ackAnswer);
-            //toDo check request
-            Sending send = new Sending(socket);
-            send.sending(bytefile, ackAnswer.getAddress(),ackAnswer.getPort());
+            String sendAndFilename =  filename;
+            byte[] packet = MakePacket.makePacket(sendAndFilename.getBytes(), 0, 0, MakePacket.setFlags(false,false,true,false,false,false), 0, 0);
+            DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
+            try {
+                DatagramSocket socket = new DatagramSocket();
+                socket.send(packetToSend);
+                byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
+                DatagramPacket ackAnswer = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
+                socket.receive(ackAnswer);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+                if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false,false,false,false,false,true)){
+                    String errorMessage = new String(buffer, MakePacket.personalizedHeaderLength, ackAnswer.getLength());
+                   System.out.println("ERROR " + errorMessage.trim());
+                }
+                else {
+                    Sending send = new Sending(socket);
+                    send.sending(bytefile, ackAnswer.getAddress(), ackAnswer.getPort());
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
 

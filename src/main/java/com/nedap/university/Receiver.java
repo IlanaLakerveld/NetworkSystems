@@ -23,6 +23,13 @@ public  class Receiver {
             byte[] receivedPacket = new byte[DATASIZE];
             DatagramPacket request = new DatagramPacket(receivedPacket, receivedPacket.length);
             socket.receive(request);
+            // flag is set if something went wrong
+            if(MakePacket.getFlag(request.getData()) == MakePacket.setFlags(false,false,false,false,false,true)){
+                String errorMessage = new String(receivedPacket, MakePacket.personalizedHeaderLength, request.getLength());
+                System.out.println("ERROR " + errorMessage.trim());
+                return "error".getBytes() ;
+            }
+
 
             int seqNum = MakePacket.getSequenceNumber(receivedPacket);
             if (seqNum == lastReceivedPacket+(request.getLength() - MakePacket.personalizedHeaderLength)) { // need to change if it's not  stop & wait

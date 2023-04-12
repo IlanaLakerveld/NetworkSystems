@@ -67,14 +67,18 @@ class MakePacketTest {
 
     @Test
     public void setFlagsTest(){
-        byte flags = MakePacket.setFlags(false, false);
+        byte flags = MakePacket.setFlags(false, false,false,false,false,false);
         assertEquals(0,flags);
-        byte flags1 = MakePacket.setFlags(true, false);
+        byte flags1 = MakePacket.setFlags(true, false,false,false,false,false);
         assertEquals(1,flags1);
-        byte flags2 = MakePacket.setFlags(false, true);
+        byte flags2 = MakePacket.setFlags(false, true,false,false,false,false);
         assertEquals(2,flags2);
-        byte flags3 = MakePacket.setFlags(true, true);
-        assertEquals(3,flags3);
+        byte flags3 = MakePacket.setFlags(true, true,false,false,false,false);
+        assertEquals(0b11,flags3);
+        assertEquals(0b100,MakePacket.setFlags(false, false,true,false,false,false));
+        assertEquals(0b1000,MakePacket.setFlags(false, false,false,true,false,false));
+        assertEquals(0b10000,MakePacket.setFlags(false,false,false,false,true,false));
+        assertEquals(0b100000,MakePacket.setFlags(false,false,false,false,false,true));
 
     }
 
