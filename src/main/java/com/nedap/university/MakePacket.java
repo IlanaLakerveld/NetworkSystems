@@ -175,6 +175,10 @@ public final class MakePacket {
         return bytesForChecksum ;
     }
 
+    public static byte getFlag(byte[] packet){
+        return packet[9];
+    }
+
 
     /**
      *
@@ -182,13 +186,25 @@ public final class MakePacket {
      * @param ACK true if ack flag needs to be set
      * @return byte flag for the header
      */
-    public static byte setFlags(boolean FIN,boolean ACK){
+    public static byte setFlags(boolean FIN,boolean ACK,boolean SEND, boolean GET, boolean REMOVE, boolean ERROR){
         byte flags =0;
         if(FIN){
             flags += 1 ;
         }
         if(ACK){
             flags += 1 << 1 ;
+        }
+        if(SEND){
+            flags += 1 <<2 ;
+        }
+        if(GET){
+            flags +=1 <<3 ;
+        }
+        if(REMOVE){
+            flags += 1<<4 ;
+        }
+        if(ERROR){
+            flags += 1<<5 ;
         }
         return flags ;
     }
