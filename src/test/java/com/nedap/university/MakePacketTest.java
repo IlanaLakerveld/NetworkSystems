@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MakePacketTest {
 
     @Test
-    public void testingTHeChecksum(){
+    public void testingTheChecksum(){
         byte [] arr = new byte[100] ;
         int checksum = MakePacket.checksum(arr);
         assertEquals(65535,checksum);
