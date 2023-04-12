@@ -23,7 +23,7 @@ public class Main {
         // setup
         running = true;
         System.out.println("Hello, Nedap University! ilana ");
-        int port = 62824;
+        int port = 62815;
         DatagramSocket socket;
         try {
             socket = new DatagramSocket(port);
