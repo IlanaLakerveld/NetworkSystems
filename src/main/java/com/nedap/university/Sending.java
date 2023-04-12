@@ -1,6 +1,8 @@
 package com.nedap.university;
 
 
+import com.nedap.university.Timer.TimeOut;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -13,14 +15,21 @@ import java.util.Arrays;
  */
 public class Sending {
 
+
     // TOdo wil je dit static houden of wil je dit kunnen veranderen.??
     static final int DATASIZE = 512;   // max. number of user data bytes in each packet
+    public int filePointer ;
+    public DatagramSocket socket ;
 
-    public void sending(byte[] file , DatagramSocket socket, InetAddress address, int port) throws IOException {
+    public Sending(DatagramSocket socket) {
+        this.socket = socket;
+    }
+
+    public void sending(byte[] file , InetAddress address, int port) throws IOException {
 
 
         int totalNumberOfPackets = ((file.length / (DATASIZE - MakePacket.personalizedHeaderLength)) + 1); // naar boven afronden
-        int filePointer = 0; // Todo change? is dit niet sequment number?
+        filePointer = 0; // Todo change? is dit niet sequment number?
         boolean finished = false;
         int windowSize = 1; // Stop en wait protocol
         int finFlag = 0 ;
@@ -43,6 +52,7 @@ public class Sending {
 
             // Todo set time out
             TimeoutElapsed(filePointer);
+            new TimeOut(100,this,packetToSend) ;
 
             // waiting for the acknowledgement
             boolean stopSending = true;

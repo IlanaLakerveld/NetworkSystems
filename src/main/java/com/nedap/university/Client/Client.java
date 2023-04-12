@@ -16,7 +16,7 @@ public class Client {
     public InetAddress address;
 
     public Client() {
-        port = 62828;
+        port = 62824;
         try {
             address = InetAddress.getByName("localhost");
             //        InetAddress address = InetAddress.getByName("127.0.0.1");
@@ -61,8 +61,8 @@ public class Client {
             DatagramPacket ackAnswer = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
             socket.receive(ackAnswer);
             //toDo check request
-            Sending send = new Sending();
-            send.sending(bytefile,socket, ackAnswer.getAddress(),ackAnswer.getPort());
+            Sending send = new Sending(socket);
+            send.sending(bytefile, ackAnswer.getAddress(),ackAnswer.getPort());
 
         } catch (IOException e) {
             throw new RuntimeException(e);
