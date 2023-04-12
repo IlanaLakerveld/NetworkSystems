@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Socket;
 import java.net.SocketException;
 
 /**
@@ -23,7 +24,7 @@ public class Main {
         // setup
         running = true;
         System.out.println("Hello, Nedap University! ilana ");
-        int port = 62810;
+        int port = 62837;
         DatagramSocket socket;
         try {
             socket = new DatagramSocket(port);
@@ -42,6 +43,7 @@ public class Main {
 
 
                 String filename = new String(buffer, MakePacket.personalizedHeaderLength, Math.min(request.getLength(), buffer.length-MakePacket.personalizedHeaderLength));
+                filename = filename.trim();
                 byte flag = MakePacket.getFlag(request.getData());
 
                 if(flag == MakePacket.setFlags(false,false,true,false,false,false)){
@@ -57,12 +59,8 @@ public class Main {
                 }
                 else{
                     System.out.println("do not understand the input") ;
-                            // todo send back that you do not underand
                     String errormessage = "do not understand the input" ;
-
-                    byte[] errorPacket = MakePacket.makePacket(errormessage.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, false, false, false, false, true), 0, MakePacket.getSessionNumber(request.getData()));
-                    DatagramPacket errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length,request.getAddress(),request.getPort()) ;
-                    socket.send(errorPacketDatagram);
+                    sendErrorPacket(errormessage,request,socket) ;
 
                 }
 
@@ -99,36 +97,50 @@ public class Main {
 
 
     private static void GETAnswers(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
-//        File file = new File(filename);
-        File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/medium.pdf");
-        byte[] bytefile = Fileclass.loadFile(file);
-        Sending send = new Sending(socket);
-        send.sending(bytefile, request.getAddress(),request.getPort());
+        File file = new File(filename);
+        if(!file.exists()){
+            System.out.println("file does not exist");
+            sendErrorPacket("file does not exist",request,socket);
+        }
+        else {
+//
+            byte[] bytefile = Fileclass.loadFile(file);
+            Sending send = new Sending(socket);
+            send.sending(bytefile, request.getAddress(), request.getPort());
+        }
 
 
 
     }
 
     private static void ReceiveFile(DatagramPacket request, DatagramSocket socket,String filename) throws IOException {
-//        File file = new File(filename);
-//        if (file.exists()) {
+        File file = new File(filename);
+        if (file.exists()) {
             System.out.println("file already exist");
-            // todo maak hier iets dat zegt met een vraag wil je dit overschijven?
-//        }
-//        else {
+            sendErrorPacket("file already exist, if you want to replace this file try replace",request,socket);
+        }
+        else {
             // toDo change are magic numbers
-            byte[] ack = MakePacket.makePacket(new byte[]{1},0,0,(byte) 0,0,0);
+            byte[] ack = MakePacket.makePacket(new byte[]{1},0,0,MakePacket.setFlags(false,true,false,false,false,false),0,0);
 
             DatagramPacket packet = new DatagramPacket(ack,0,ack.length,request.getAddress(),request.getPort()) ;
             socket.send(packet);
 
             Receiver receiver = new Receiver();
             byte[] receivedfile = receiver.receiver(socket, request.getAddress(), request.getPort());
-            if(!receivedfile.equals("error".getBytes())){
+            if(!(new String(receivedfile).equals("error"))){
                 Fileclass.makeFileFromBytes(filename, receivedfile);
             }
 
-//        }
+        }
+
+    }
+
+
+    private static void sendErrorPacket(String errormessage, DatagramPacket request , DatagramSocket socket) throws IOException {
+        byte[] errorPacket = MakePacket.makePacket(errormessage.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, false, false, false, false, true), 0, MakePacket.getSessionNumber(request.getData()));
+        DatagramPacket errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length,request.getAddress(),request.getPort()) ;
+        socket.send(errorPacketDatagram);
 
     }
 

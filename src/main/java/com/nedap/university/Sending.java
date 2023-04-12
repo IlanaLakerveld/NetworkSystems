@@ -32,8 +32,8 @@ public class Sending {
         filePointer = 0; // Todo change? is dit niet sequment number?
         boolean finished = false;
         int windowSize = 1; // Stop en wait protocol
-        int finFlag = 0 ;
-        int sessionNumber = (int) (Math.random() * 1000);  // Todo change kan nu alleen maar nummber tussen 1-1000 zijn
+        byte flagsByte = MakePacket.setFlags(false,false,false,false,false,false) ;
+        int sessionNumber = (int) (Math.random() * 1000);  // Todo change kan nu alleen maar number tussen 1-1000 zijn
         System.out.println("total number of packets are "+totalNumberOfPackets);
 
 
@@ -43,15 +43,15 @@ public class Sending {
             int datalen = Math.min(DATASIZE-MakePacket.personalizedHeaderLength, file.length - filePointer);
             // check if it is the last file
             if(datalen+filePointer == file.length){
-                finFlag=1;
+                flagsByte = MakePacket.setFlags(true,false,false,false,false,false) ;
+
             }
             byte[] data = Arrays.copyOfRange(file, filePointer, (filePointer + datalen));
-            byte[] packet = MakePacket.makePacket(data, (filePointer+datalen), 0, (byte) finFlag, 1, sessionNumber);
+            byte[] packet = MakePacket.makePacket(data, (filePointer+datalen), 0,  flagsByte, 1, sessionNumber);
             DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
             socket.send(packetToSend);
 
-            // Todo set time out
-            TimeoutElapsed(filePointer);
+            //set time out
             new TimeOut(100,this,packetToSend) ;
 
             // waiting for the acknowledgement
@@ -68,7 +68,6 @@ public class Sending {
 
                     // TOdo give logical input for checksum
                     // check if the packet is correct.
-
                     if (checksum == MakePacket.checksum(MakePacket.getInputForChecksumWithoutHeader(ackPacket))) {
                         System.out.println("checksum correct");
                     filePointer += datalen;
@@ -86,7 +85,5 @@ public class Sending {
         }
     }
 
-    public void TimeoutElapsed(int filePointer) {
-        //TODo make timeout
-    }
+
 }

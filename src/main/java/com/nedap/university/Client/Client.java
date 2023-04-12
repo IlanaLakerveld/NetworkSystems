@@ -16,7 +16,7 @@ public class Client {
     public InetAddress address;
 
     public Client() {
-        port = 62810;
+        port = 62837;
         try {
             address = InetAddress.getByName("localhost");
             //        InetAddress address = InetAddress.getByName("127.0.0.1");
@@ -55,8 +55,8 @@ public class Client {
     }
 
     public void sendRequest(String filename) {
-//        File file = new File(filename);
-        File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/medium.pdf");
+        File file = new File(filename);
+//        File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/medium.pdf");
         if(!file.exists()){
             System.out.println("can not send it because file does not exist");
         }
