@@ -160,11 +160,13 @@ public class Main {
     }
 
     private static void getListOfFiles(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
-        File currentDirectory = new File("./out");
+        System.out.println("want list of files");
+        File currentDirectory = new File(".");
         String stringlist = "";
         stringlist = getStringOfNamesOfAllTheFilesInTheDirectory(currentDirectory, stringlist);
         byte[] listPacket = MakePacket.makePacket(stringlist.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, true, false, false, false, false, false), 0, 0);
         DatagramPacket packet = new DatagramPacket(listPacket, listPacket.length, request.getAddress(), request.getPort());
+        System.out.println("send list of files");
         socket.send(packet);
 
 
@@ -175,7 +177,7 @@ public class Main {
         if (list != null) {
             for (File file : list) {
                 if (file.isDirectory()) {
-                    stringList += getStringOfNamesOfAllTheFilesInTheDirectory(file, stringList);
+//                    stringList += getStringOfNamesOfAllTheFilesInTheDirectory(file, stringList);
                 } else if (file.isFile()) {
                     stringList += file.getName();
                     stringList += "\n";
