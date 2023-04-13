@@ -186,7 +186,7 @@ public final class MakePacket {
      * @param ACK true if ack flag needs to be set
      * @return byte flag for the header
      */
-    public static byte setFlags(boolean FIN,boolean ACK,boolean SEND, boolean GET, boolean REMOVE, boolean ERROR){
+    public static byte setFlags(boolean FIN,boolean ACK,boolean SEND, boolean GET, boolean REMOVE, boolean ERROR, boolean LIST){
         byte flags =0;
         if(FIN){
             flags += 1 ;
@@ -205,6 +205,9 @@ public final class MakePacket {
         }
         if(ERROR){
             flags += 1<<5 ;
+        }
+        if(LIST){
+            flags += 1<<6 ;
         }
         return flags ;
     }
