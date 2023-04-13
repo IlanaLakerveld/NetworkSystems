@@ -22,8 +22,6 @@ public class Main {
     private static boolean running = false;
 
 
-
-
     public static void main(String[] args) {
         // setup
         running = true;
@@ -46,26 +44,26 @@ public class Main {
                 socket.receive(request);  // waiting for the request
 
 
-                String filename = new String(buffer, MakePacket.personalizedHeaderLength, Math.min(request.getLength(), buffer.length-MakePacket.personalizedHeaderLength));
+                String filename = new String(buffer, MakePacket.personalizedHeaderLength, Math.min(request.getLength(), buffer.length - MakePacket.personalizedHeaderLength));
                 filename = filename.trim();
                 byte flag = MakePacket.getFlag(request.getData());
 
-                if(flag == MakePacket.setFlags(false,false,true,false,false,false)){
+                if (flag == MakePacket.setFlags(false, false, true, false, false, false, false)) {
                     System.out.println("start receiving");
-                    ReceiveFile(request, socket, filename)  ;
-                }
-                else if(flag == MakePacket.setFlags(false,false,false,true,false,false)){
+                    ReceiveFile(request, socket, filename);
+                } else if (flag == MakePacket.setFlags(false, false, false, true, false, false, false)) {
                     System.out.println("client want to get a packet");
-                    respondToGetRequest(request, socket, filename );
-                }
-                else if(flag == MakePacket.setFlags(false,false,false,false,true,false)){
+                    respondToGetRequest(request, socket, filename);
+                } else if (flag == MakePacket.setFlags(false, false, false, false, true, false, false)) {
                     System.out.println("client want to remove a packet");
-                    deleteFile(request,socket,filename);
-                }
-                else{
-                    System.out.println("do not understand the input") ;
-                    String errormessage = "do not understand the input" ;
-                    sendErrorPacket(errormessage,request,socket) ;
+                    deleteFile(request, socket, filename);
+                } else if (flag == MakePacket.setFlags(false, false, false, false, false, false, true)) {
+                    System.out.println("client wnat a list of files ");
+                    getListOfFiles(request, socket, filename);
+                } else {
+                    System.out.println("do not understand the input");
+                    String errormessage = "do not understand the input";
+                    sendErrorPacket(errormessage, request, socket);
                 }
 
                 Thread.sleep(1000);
@@ -98,37 +96,32 @@ public class Main {
     }
 
 
-
-
     private static void respondToGetRequest(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
         File file = new File(filename);
-        if(!file.exists()){
+        if (!file.exists()) {
             System.out.println("file does not exist");
-            sendErrorPacket("file does not exist",request,socket);
-        }
-        else {
+            sendErrorPacket("file does not exist", request, socket);
+        } else {
             byte[] byteFile = Fileclass.loadFile(file);
             Sending send = new Sending(socket);
             send.sending(byteFile, request.getAddress(), request.getPort());
         }
 
 
-
     }
 
-    private static void ReceiveFile(DatagramPacket request, DatagramSocket socket,String filename) throws IOException {
+    private static void ReceiveFile(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
         File file = new File(filename);
         if (file.exists()) {
             System.out.println("file already exist");
-            sendErrorPacket("file already exist, if you want to replace this file try replace",request,socket);
-        }
-        else {
+            sendErrorPacket("file already exist, if you want to replace this file try replace", request, socket);
+        } else {
 
             sendACK(request, socket);
 
             Receiver receiver = new Receiver();
             byte[] receivedfile = receiver.receiver(socket, request.getAddress(), request.getPort());
-            if(!(new String(receivedfile).equals("error"))){
+            if (!(new String(receivedfile).equals("error"))) {
                 Fileclass.makeFileFromBytes(filename, receivedfile);
             }
 
@@ -139,32 +132,56 @@ public class Main {
 
     //TODO change magic numbers
     private static void sendACK(DatagramPacket request, DatagramSocket socket) throws IOException {
-        byte[] ack = MakePacket.makePacket(new byte[]{1},0,0,MakePacket.setFlags(false,true,false,false,false,false),0,0);
-
-        DatagramPacket packet = new DatagramPacket(ack,0,ack.length, request.getAddress(), request.getPort()) ;
+        byte[] ack = MakePacket.makePacket(new byte[]{1}, 0, 0, MakePacket.setFlags(false, true, false, false, false, false, false), 0, 0);
+        DatagramPacket packet = new DatagramPacket(ack, 0, ack.length, request.getAddress(), request.getPort());
         socket.send(packet);
     }
 
 
-    private static void sendErrorPacket(String errormessage, DatagramPacket request , DatagramSocket socket) throws IOException {
-        byte[] errorPacket = MakePacket.makePacket(errormessage.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, false, false, false, false, true), 0, MakePacket.getSessionNumber(request.getData()));
-        DatagramPacket errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length,request.getAddress(),request.getPort()) ;
+    private static void sendErrorPacket(String errormessage, DatagramPacket request, DatagramSocket socket) throws IOException {
+        byte[] errorPacket = MakePacket.makePacket(errormessage.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, false, false, false, false, true, false), 0, MakePacket.getSessionNumber(request.getData()));
+        DatagramPacket errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length, request.getAddress(), request.getPort());
         socket.send(errorPacketDatagram);
 
     }
 
-    private static void deleteFile(DatagramPacket request, DatagramSocket socket,String filename) throws IOException {
+    private static void deleteFile(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
         File file = new File(filename);
-        if(!file.exists()){
+        if (!file.exists()) {
             System.out.println("file does not exist");
-            sendErrorPacket("file " + filename +" does not exist so can not be deleted",request,socket);
-        }
-        else{
+            sendErrorPacket("file " + filename + " does not exist so can not be deleted", request, socket);
+        } else {
             file.delete();
             System.out.println("file deleted");
-            sendACK(request,socket);
+            sendACK(request, socket);
 
         }
 
+    }
+
+    private static void getListOfFiles(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
+        File currentDirectory = new File("./out");
+        String stringlist = "";
+        stringlist = getStringOfNamesOfAllTheFilesInTheDirectory(currentDirectory, stringlist);
+        byte[] listPacket = MakePacket.makePacket(stringlist.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, true, false, false, false, false, false), 0, 0);
+        DatagramPacket packet = new DatagramPacket(listPacket, listPacket.length, request.getAddress(), request.getPort());
+        socket.send(packet);
+
+
+    }
+
+    private static String getStringOfNamesOfAllTheFilesInTheDirectory(File currentDirectory, String stringList) {
+        File[] list = currentDirectory.listFiles();
+        if (list != null) {
+            for (File file : list) {
+                if (file.isDirectory()) {
+                    stringList += getStringOfNamesOfAllTheFilesInTheDirectory(file, stringList);
+                } else if (file.isFile()) {
+                    stringList += file.getName();
+                    stringList += "\n";
+                }
+            }
+        }
+        return stringList;
     }
 }
