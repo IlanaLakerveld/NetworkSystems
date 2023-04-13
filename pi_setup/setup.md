@@ -111,7 +111,7 @@ The service is automatically started at boot. You can manually start/stop the se
 
 `sudo systemctl start num2.service`
 
-`sudo systemctl stop num2.service`
+`./gradlew deploy`
 
 If you modify the service configuration you have to reload the configuration:
 

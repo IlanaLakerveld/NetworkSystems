@@ -28,13 +28,14 @@ public class TimeOutTask extends TimerTask {
     public void run() {
 
         if(MakePacket.getSequenceNumber(datagramPacket.getData()) <= sendingClass.filePointer){
-            System.out.println("current filepoint is "+ sendingClass.filePointer + "and is smaller than sequence number so already acknowledged ");
+//            System.out.println("current filepoint is "+ sendingClass.filePointer + "and is smaller than sequence number so already acknowledged ");
         }
         else{
             System.out.println("current filepoint is "+ sendingClass.filePointer + "and is bigger than sequence number "+ MakePacket.getSequenceNumber(datagramPacket.getData())+ "so resending dataram packet");
             try {
                 sendingClass.socket.send(datagramPacket);
                 new TimeOut(100,sendingClass,datagramPacket) ;
+                timer.cancel() ;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

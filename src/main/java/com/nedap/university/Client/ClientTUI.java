@@ -85,9 +85,6 @@ public class ClientTUI {
         } catch (ServerGivesErrorException e) {
             System.out.println("list not returned");
         }
-
-        System.out.println("not implemented yet");
-        //toDO
     }
 
 
