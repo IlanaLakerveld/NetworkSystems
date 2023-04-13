@@ -50,7 +50,7 @@ class MakePacketTest {
     public void personalizedHeaderTest(){
         int sequenceNumber = 2838506 ;
         int ack = 3154321;
-        byte flags = 0 ;
+        byte flags = 0b100 ;
         int windowSize = 4236 ;
         int sessionNumber = 23;
 
@@ -58,7 +58,7 @@ class MakePacketTest {
 
         assertEquals(sequenceNumber, MakePacket.getSequenceNumber(output));
         assertEquals(ack, MakePacket.getAckNumber(output));
-        //TODO check flags
+        assertEquals(flags, MakePacket.getFlag(output));
         assertEquals(windowSize,MakePacket.getWindowsize(output));
         assertEquals(sessionNumber,MakePacket.getSessionNumber(output));
         //todo do you want exeptions for te grote getallen?
