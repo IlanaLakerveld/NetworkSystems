@@ -1,5 +1,8 @@
 package com.nedap.university.Client;
 
+import com.nedap.university.Exeptions.FileNotExistException;
+import com.nedap.university.Exeptions.ServerGivesErrorException;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -17,9 +20,10 @@ public class ClientTUI {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         //TOdo change that client has input for the server.
-        Client client = new Client();
+
         InetAddress serveradress = getInetAddress(scanner);
         int portnumber = getPortNumber(scanner);
+        Client client = new Client(portnumber,serveradress);
 
         System.out.println(help);
 
@@ -55,11 +59,21 @@ public class ClientTUI {
     }
 
     private static void sendRequest(Client client, String filename) {
-        client.sendRequest(filename);
+        try {
+            client.sendRequest(filename);
+        } catch (FileNotExistException e) {
+            System.out.println("File does not exist");
+        }catch (ServerGivesErrorException e){
+            System.out.println("error from server task not completed");
+        }
     }
 
     private static void deleteRequest(Client client, String filename) {
-        client.deleteRequest(filename);
+        try {
+            client.deleteRequest(filename);
+        } catch (FileNotExistException e) {
+            System.out.println("The file is not deleted");
+        }
     }
 
     private static void getList() {

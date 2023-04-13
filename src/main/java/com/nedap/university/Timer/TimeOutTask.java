@@ -9,7 +9,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * This class has a function that is being called when the timer expires.
+ * This class has a function that is being called when the timer expires in on the sending side.
  */
 public class TimeOutTask extends TimerTask {
     private Timer timer ;

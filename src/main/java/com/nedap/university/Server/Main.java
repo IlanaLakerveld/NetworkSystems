@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Socket;
 import java.net.SocketException;
 
 /**
@@ -39,7 +38,7 @@ public class Main {
         System.out.println("local port is : " + socket.getLocalPort());
         initShutdownHook();
 
-        // waiting for input
+
         while (keepAlive) {
             try {
                 byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
@@ -57,7 +56,7 @@ public class Main {
                 }
                 else if(flag == MakePacket.setFlags(false,false,false,true,false,false)){
                     System.out.println("client want to get a packet");
-                    GETAnswers(request, socket, filename );
+                    respondToGetRequest(request, socket, filename );
                 }
                 else if(flag == MakePacket.setFlags(false,false,false,false,true,false)){
                     System.out.println("client want to remove a packet");
@@ -67,7 +66,6 @@ public class Main {
                     System.out.println("do not understand the input") ;
                     String errormessage = "do not understand the input" ;
                     sendErrorPacket(errormessage,request,socket) ;
-
                 }
 
                 Thread.sleep(1000);
@@ -102,17 +100,16 @@ public class Main {
 
 
 
-    private static void GETAnswers(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
+    private static void respondToGetRequest(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
         File file = new File(filename);
         if(!file.exists()){
             System.out.println("file does not exist");
             sendErrorPacket("file does not exist",request,socket);
         }
         else {
-//
-            byte[] bytefile = Fileclass.loadFile(file);
+            byte[] byteFile = Fileclass.loadFile(file);
             Sending send = new Sending(socket);
-            send.sending(bytefile, request.getAddress(), request.getPort());
+            send.sending(byteFile, request.getAddress(), request.getPort());
         }
 
 
@@ -163,7 +160,6 @@ public class Main {
             sendErrorPacket("file " + filename +" does not exist so can not be deleted",request,socket);
         }
         else{
-
             file.delete();
             System.out.println("file deleted");
             sendACK(request,socket);
