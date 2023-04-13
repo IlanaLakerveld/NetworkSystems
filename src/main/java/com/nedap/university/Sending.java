@@ -32,7 +32,7 @@ public class Sending {
         filePointer = 0; // Todo change? is dit niet sequment number?
         boolean finished = false;
         int windowSize = 1; // Stop en wait protocol
-        byte flagsByte = MakePacket.setFlags(false,false,false,false,false,false) ;
+        byte flagsByte = MakePacket.setFlags(false,false,false,false,false,false,false) ;
         int sessionNumber = (int) (Math.random() * 1000);  // Todo change kan nu alleen maar number tussen 1-1000 zijn
         System.out.println("total number of packets are "+totalNumberOfPackets);
 
@@ -43,7 +43,7 @@ public class Sending {
             int datalen = Math.min(DATASIZE-MakePacket.personalizedHeaderLength, file.length - filePointer);
             // check if it is the last file
             if(datalen+filePointer == file.length){
-                flagsByte = MakePacket.setFlags(true,false,false,false,false,false) ;
+                flagsByte = MakePacket.setFlags(true,false,false,false,false,false,false) ;
 
             }
             byte[] data = Arrays.copyOfRange(file, filePointer, (filePointer + datalen));

@@ -18,7 +18,7 @@ public class Client {
     public InetAddress address;
 
     public Client(int port, InetAddress address) {
-        this.port = port ;
+        this.port = port;
         this.address = address;
 
 
@@ -27,7 +27,7 @@ public class Client {
 
     public void getRequest(String filename) {
 
-        byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, (byte) MakePacket.setFlags(false,false,false,true,false,false), 0, 0);
+        byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, (byte) MakePacket.setFlags(false, false, false, true, false, false, false), 0, 0);
 
         DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
         try {
@@ -35,10 +35,9 @@ public class Client {
             datagramSocket.send(packetToSend);
             Receiver receiver = new Receiver();
             byte[] receivedFile = receiver.receiver(datagramSocket, address, port);
-            if(new String(receivedFile).equals("error")){
+            if (new String(receivedFile).equals("error")) {
                 System.out.println("request failed");
-            }
-            else{
+            } else {
                 Fileclass.makeFileFromBytes(filename, receivedFile);
             }
 
@@ -53,11 +52,10 @@ public class Client {
 
     public void sendRequest(String filename) throws FileNotExistException, ServerGivesErrorException {
         File file = new File(filename);
-        if(!file.exists()){
+        if (!file.exists()) {
             throw new FileNotExistException("Can not send it because file does not exist");
-        }
-        else {
-            byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, MakePacket.setFlags(false,false,true,false,false,false), 0, 0);
+        } else {
+            byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, MakePacket.setFlags(false, false, true, false, false, false, false), 0, 0);
             DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
             try {
                 DatagramSocket socket = new DatagramSocket();
@@ -65,11 +63,10 @@ public class Client {
                 byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
                 DatagramPacket ackAnswer = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
                 socket.receive(ackAnswer);
-                if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false,false,false,false,false,true)){
+                if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
                     String errorMessage = new String(buffer, MakePacket.personalizedHeaderLength, ackAnswer.getLength());
                     throw new ServerGivesErrorException("ERROR " + errorMessage.trim());
-                }
-                else {
+                } else {
                     byte[] bytefile = Fileclass.loadFile(file);
                     Sending send = new Sending(socket);
                     send.sending(bytefile, ackAnswer.getAddress(), ackAnswer.getPort());
@@ -84,7 +81,7 @@ public class Client {
     }
 
     public void deleteRequest(String filename) throws FileNotExistException {
-        byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, (byte) MakePacket.setFlags(false,false,false,false,true,false), 0, 0);
+        byte[] packet = MakePacket.makePacket(filename.getBytes(), 0, 0, MakePacket.setFlags(false, false, false, false, true, false, false), 0, 0);
 
         DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
         try {
@@ -93,19 +90,35 @@ public class Client {
             byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
             DatagramPacket ackAnswer = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
             socket.receive(ackAnswer);
-            if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false,false,false,false,false,true)){
+            if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
                 String errorMessage = new String(buffer, MakePacket.personalizedHeaderLength, ackAnswer.getLength());
-                throw new FileNotExistException("ERROR " + errorMessage.trim()) ;
-            }
-            else if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false,true,false,false,false,false)){
+                throw new FileNotExistException("ERROR " + errorMessage.trim());
+            } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)) {
                 System.out.println("File is deleted");
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("something went wrong with Datagram socket");
             throw new RuntimeException();
         }
+    }
 
-
+    public void getListRequest() throws IOException, ServerGivesErrorException {
+        byte[] packet = MakePacket.makePacket(new byte[]{0}, 0, 0, MakePacket.setFlags(false, false, false, false, false, false, true), 0, 0);
+        DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
+        DatagramSocket socket = new DatagramSocket();
+        socket.send(packetToSend);
+        byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
+        DatagramPacket ackAnswer = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
+        socket.receive(ackAnswer);
+        if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
+            String errorMessage = new String(buffer, MakePacket.personalizedHeaderLength, ackAnswer.getLength());
+            throw new ServerGivesErrorException("ERROR " + errorMessage.trim());
+        }
+        else if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)){
+            System.out.println("The names of the files are :");
+            String list = new String(buffer, MakePacket.personalizedHeaderLength, ackAnswer.getLength());
+            list = list.trim();
+            System.out.println(list);
+        }
     }
 }

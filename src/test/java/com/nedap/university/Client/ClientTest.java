@@ -78,7 +78,7 @@ class ClientTest {
                 throw new RuntimeException(e);
             }
             // only the flags is important
-            byte[] errorPacket = MakePacket.makePacket("Some Error Message here".getBytes(), 0, 0, MakePacket.setFlags(false, false, false, false, false, true), 0, 0);
+            byte[] errorPacket = MakePacket.makePacket("Some Error Message here".getBytes(), 0, 0, MakePacket.setFlags(false, false, false, false, false, true,false), 0, 0);
             DatagramPacket errorPacketDatagram = null;
             errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length, request.getAddress(), request.getPort());
 

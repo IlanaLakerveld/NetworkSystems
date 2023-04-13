@@ -3,6 +3,7 @@ package com.nedap.university.Client;
 import com.nedap.university.Exeptions.FileNotExistException;
 import com.nedap.university.Exeptions.ServerGivesErrorException;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -36,7 +37,7 @@ public class ClientTUI {
                 case "GET" -> getRequest(client, splittedLine[1]);
                 case "SEND" -> sendRequest(client, splittedLine[1]);
                 case "DELETE" -> deleteRequest(client,splittedLine[1]);
-                case "LISTFILES" -> getList();
+                case "LISTFILES" -> getList(client);
                 case "HELP" -> System.out.println(help);
 
                 default -> System.out.println("Do not understand this line :" + input);
@@ -76,7 +77,15 @@ public class ClientTUI {
         }
     }
 
-    private static void getList() {
+    private static void getList(Client client) {
+        try {
+            client.getListRequest();
+        } catch (IOException e) {
+            System.out.println("something wrong with the connection, so you can not get the list. ");
+        } catch (ServerGivesErrorException e) {
+            System.out.println("list not returned");
+        }
+
         System.out.println("not implemented yet");
         //toDO
     }
