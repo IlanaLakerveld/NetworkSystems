@@ -26,12 +26,9 @@ public class TimeOutTask extends TimerTask {
      */
     @Override
     public void run() {
-
-        if(MakePacket.getSequenceNumber(datagramPacket.getData()) <= sendingClass.filePointer){
-//            System.out.println("current filepoint is "+ sendingClass.filePointer + "and is smaller than sequence number so already acknowledged ");
-        }
-        else{
-            System.out.println("current filepoint is "+ sendingClass.filePointer + "and is bigger than sequence number "+ MakePacket.getSequenceNumber(datagramPacket.getData())+ "so resending datagram packet");
+        int sequenceNumber = MakePacket.getSequenceNumber(datagramPacket.getData());
+        if(sequenceNumber > sendingClass.filePointer){
+            System.out.println("file pointer" + sendingClass.filePointer +"is smaller then sequence number "+ sequenceNumber + "so the sequence number is not acknowledged yet, so resending");
             try {
                 sendingClass.socket.send(datagramPacket);
                 new TimeOut(100,sendingClass,datagramPacket) ;
@@ -41,7 +38,6 @@ public class TimeOutTask extends TimerTask {
             }
 
         }
-
         timer.cancel() ;
     }
 }
