@@ -58,7 +58,7 @@ public class Main {
                     System.out.println("client want to remove a packet");
                     deleteFile(request, socket, filename);
                 } else if (flag == MakePacket.setFlags(false, false, false, false, false, false, true)) {
-                    System.out.println("client wnat a list of files ");
+                    System.out.println("client want a list of files ");
                     getListOfFiles(request, socket, filename);
                 } else {
                     System.out.println("do not understand the input");

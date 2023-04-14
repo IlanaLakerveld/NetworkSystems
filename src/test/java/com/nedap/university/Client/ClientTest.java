@@ -50,11 +50,11 @@ class ClientTest {
 
     }
 
-    private void notExistedInputTest() throws FileNotExistException, ServerGivesErrorException {
+    private void notExistedInputTest() throws FileNotExistException, ServerGivesErrorException, IOException {
         client.sendRequest("notExistedFile.png");
     }
 
-    private void getErrorTest() throws ServerGivesErrorException, FileNotExistException {
+    private void getErrorTest() throws ServerGivesErrorException, FileNotExistException, IOException {
         client.sendRequest("somefile.pdf");
     }
 
@@ -91,7 +91,7 @@ class ClientTest {
         }
 }
 
-    private void getErrorTestDelete() throws ServerGivesErrorException, FileNotExistException {
+    private void getErrorTestDelete() throws ServerGivesErrorException, FileNotExistException, IOException {
         client.deleteRequest("somefile.pdf");
     }
 
