@@ -1,5 +1,6 @@
 package com.nedap.university;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 /**
@@ -11,12 +12,18 @@ public final class MakePacket {
 
 
 
+    public static final byte ackFlagByte = MakePacket.setFlags(false,true,false,false,false,false,false);
+    public static final byte sendFlagByte = MakePacket.setFlags(false,false,true,false,false,false,false);
+    public static final byte getFlagByte = MakePacket.setFlags(false,false,false,true,false,false,false);
+    public static final byte removeFlagByte = MakePacket.setFlags(false,false,false,false,true,false,false);
+    public static final byte listFlagByte = MakePacket.setFlags(false,false,false,false,false,false,true);
+
     /**
      * @param payload actual data
      * @return the packet you can send nicely ordered.
      */
     public static byte[] makePacket(byte[] payload, int sequenceNumber, int ack, byte flags, int windowSize, int sessionNumber) {
-        byte[] header = personalizedHeader(sequenceNumber, ack, flags, windowSize, sessionNumber);
+        byte[] header = personalizedHeader(sequenceNumber, ack, flags, windowSize, sessionNumber,payload);
         byte[] packet = new byte[payload.length + personalizedHeaderLength];
         System.arraycopy(header, 0, packet, 0, personalizedHeaderLength);
         System.arraycopy(payload, 0, packet, personalizedHeaderLength, payload.length);
@@ -39,7 +46,7 @@ public final class MakePacket {
      */
 
 
-    public static byte[] personalizedHeader(int sequenceNumber, int ack, byte flags, int windowSize, int sessionNumber) {
+    public static byte[] personalizedHeader(int sequenceNumber, int ack, byte flags, int windowSize, int sessionNumber,byte[] payload) {
         byte[] header = new byte[personalizedHeaderLength];
         // sequence number
         header[0] = (byte) ((sequenceNumber >> 24) & 0xff);
@@ -69,7 +76,10 @@ public final class MakePacket {
         header[15] = (byte) (sessionNumber & 0xff);
 
         //todo only header in checksum??
-        int outputChecksum = checksum(header) ;
+        byte[] inputChecksum = new byte[header.length + payload.length];
+        System.arraycopy(header,0,inputChecksum,0,header.length);
+        System.arraycopy(payload,0,inputChecksum,header.length,payload.length);
+        int outputChecksum = checksum(inputChecksum) ;
 
         // checksum
         header[12] = (byte) (outputChecksum >> 8);
@@ -172,7 +182,12 @@ public final class MakePacket {
         byte[] bytesForChecksum = Arrays.copyOfRange(packet, 0, MakePacket.personalizedHeaderLength);
         bytesForChecksum[12]=0;
         bytesForChecksum[13]=0;
-        return bytesForChecksum ;
+
+
+        byte[] inputChecksum = new byte[packet.length];
+        System.arraycopy(bytesForChecksum,0,inputChecksum,0,bytesForChecksum.length);
+        System.arraycopy(packet,MakePacket.personalizedHeaderLength,inputChecksum,bytesForChecksum.length,(packet.length-MakePacket.personalizedHeaderLength));
+        return inputChecksum ;
     }
 
     public static byte getFlag(byte[] packet){
@@ -211,6 +226,8 @@ public final class MakePacket {
         }
         return flags ;
     }
+
+
 
 
 

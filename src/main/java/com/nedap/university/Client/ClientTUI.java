@@ -11,25 +11,27 @@ import java.util.Scanner;
 /**
  * Textual User Interface for the client.
  * Via command lines the user can ask for different task to the server.
- * Before asking for this commands the first the InetAddress and Port are asked.
+ * Before asking for these commands the first the InetAddress and Port are asked.
  */
 
 public class ClientTUI {
 
-    static String help = "Here some explanations to use the TUI.\nThe commands you can use are :\n" +
-            "GET~filename  to get a file from the server\n" +
-            "SEND~filename  to send a file from the server\n" +
-            "DELETE~filename to remove a filename from the server\n" +
-            "LISTFILES to get al list of posible files\n" +
-            "QUIT stop the program";
+    static String help = """
+            Here some explanations to use the TUI.
+            The commands you can use are :
+            GET~filename  to get a file from the server
+            SEND~filename  to send a file from the server
+            DELETE~filename to remove a filename from the server
+            LISTFILES to get al list of possible files
+            QUIT stop the program""";
 
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        InetAddress serveradress = getInetAddress(scanner);
-        int portnumber = getPortNumber(scanner);
-        Client client = new Client(portnumber, serveradress);
+        InetAddress serverAddress = getInetAddress(scanner);
+        int portNumber = getPortNumber(scanner);
+        Client client = new Client(portNumber, serverAddress);
 
         System.out.println(help);
         boolean running = true;
@@ -37,28 +39,28 @@ public class ClientTUI {
             System.out.println("type your input");
 
             String input = scanner.nextLine();
-            String[] splittedLine = input.split("~");
+            String[] splitLine = input.split("~");
 
-            switch (splittedLine[0].toUpperCase()) {
+            switch (splitLine[0].toUpperCase()) {
                 case "GET" -> {
-                    if (splittedLine.length  == 1) {
+                    if (splitLine.length  == 1) {
                         System.out.println("please add a filename");
                     } else {
-                        getRequest(client, splittedLine[1]);
+                        getRequest(client, splitLine[1]);
                     }
                 }
                 case "SEND" -> {
-                    if (splittedLine.length  == 1) {
+                    if (splitLine.length  == 1) {
                         System.out.println("please add a filename");
                     } else {
-                        sendRequest(client, splittedLine[1]);
+                        sendRequest(client, splitLine[1]);
                     }
                 }
                 case "DELETE" -> {
-                    if (splittedLine.length  == 1) {
+                    if (splitLine.length  == 1) {
                         System.out.println("please add a filename");
                     } else {
-                        deleteRequest(client, splittedLine[1]) ;
+                        deleteRequest(client, splitLine[1]) ;
                     }
                 }
                 case "LISTFILES" -> getList(client);
