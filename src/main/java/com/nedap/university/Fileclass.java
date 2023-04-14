@@ -3,7 +3,7 @@ package com.nedap.university;
 import java.io.*;
 
 /**
- * This class changese file into bytes or bytes into files
+ * This class changes file into bytes or bytes into files
  */
 public final class Fileclass {
 
@@ -38,11 +38,10 @@ public final class Fileclass {
             for (byte fileContent : fileInBytes) {
                 fileStream.write(fileContent);
             }
-            fileStream.close();
-            //toDO why is this redundant?
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
 
     }
 
