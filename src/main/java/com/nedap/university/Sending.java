@@ -40,14 +40,14 @@ public class Sending {
         while (!finished) {
 
             // create and send a new packet of appropriate size
-            int datalen = Math.min(DATASIZE-MakePacket.personalizedHeaderLength, file.length - filePointer);
+            int lengthPayloadSend = Math.min(DATASIZE-MakePacket.personalizedHeaderLength, file.length - filePointer);
             // check if it is the last file
-            if(datalen+filePointer == file.length){
+            if(lengthPayloadSend+filePointer == file.length){
                 flagsByte = MakePacket.setFlags(true,false,false,false,false,false,false) ;
 
             }
-            byte[] data = Arrays.copyOfRange(file, filePointer, (filePointer + datalen));
-            byte[] packet = MakePacket.makePacket(data, (filePointer+datalen), 0,  flagsByte, 1, sessionNumber);
+            byte[] data = Arrays.copyOfRange(file, filePointer, (filePointer + lengthPayloadSend));
+            byte[] packet = MakePacket.makePacket(data, (filePointer+lengthPayloadSend), 0,  flagsByte, 1, sessionNumber);
             DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
             socket.send(packetToSend);
 
@@ -56,21 +56,21 @@ public class Sending {
             // todo ? wil je hier niet ook checken of ack flag is set
             // waiting for the acknowledgement
             boolean stopSending = true;
-            while (stopSending) { // toDo wil je dit alleen als je je window size straks bereikt is?
+            while (stopSending) {
                 byte[] ackPacket = new byte[MakePacket.personalizedHeaderLength + 1];
                 DatagramPacket request = new DatagramPacket(ackPacket, ackPacket.length);
                 socket.receive(request);
 
                 // check if you had had aan ack
                 int ack = MakePacket.getAckNumber(ackPacket);
-                if (ack == (filePointer + datalen)) { // werkt alleen zo als stop & wait is
+                if (ack == (filePointer + lengthPayloadSend)) { // werkt alleen zo als stop & wait is
                     int checksum = MakePacket.getCheckSumInteger(ackPacket);
 
                     // TOdo give logical input for checksum
                     // check if the packet is correct.
                     if (checksum == MakePacket.checksum(MakePacket.getInputForChecksumWithoutHeader(ackPacket))) {
                         System.out.println("checksum correct");
-                    filePointer += datalen;
+                    filePointer += lengthPayloadSend;
                     stopSending = false;
                    }
                 }

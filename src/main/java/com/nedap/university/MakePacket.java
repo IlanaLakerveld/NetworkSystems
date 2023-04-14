@@ -10,8 +10,6 @@ import java.util.Arrays;
 public final class MakePacket {
     public static int personalizedHeaderLength = 16;
 
-
-
     public static final byte ackFlagByte = MakePacket.setFlags(false,true,false,false,false,false,false);
     public static final byte sendFlagByte = MakePacket.setFlags(false,false,true,false,false,false,false);
     public static final byte getFlagByte = MakePacket.setFlags(false,false,false,true,false,false,false);
