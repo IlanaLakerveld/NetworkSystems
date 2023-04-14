@@ -103,10 +103,9 @@ public class Client {
             System.out.println(list);
         }
         else{
-            System.out.println("unknown packet");
+            System.out.println("unknown input ");
         }
     }
-
 
     private static DatagramPacket getAcknowledgementPacket(DatagramSocket socket) throws IOException {
         byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive

@@ -8,6 +8,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+/**
+ * Textual User Interface for the client.
+ * Via command lines the user can ask for different task to the server.
+ * Before asking for this commands the first the InetAddress and Port are asked.
+ */
 
 public class ClientTUI {
 
@@ -15,38 +20,55 @@ public class ClientTUI {
             "GET~filename  to get a file from the server\n" +
             "SEND~filename  to send a file from the server\n" +
             "DELETE~filename to remove a filename from the server\n" +
-            "LISTFILES to get al list of posible files";
+            "LISTFILES to get al list of posible files\n" +
+            "QUIT stop the program";
 
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        //TOdo change that client has input for the server.
 
         InetAddress serveradress = getInetAddress(scanner);
         int portnumber = getPortNumber(scanner);
-        Client client = new Client(portnumber,serveradress);
+        Client client = new Client(portnumber, serveradress);
 
         System.out.println(help);
-
-        while (true) {
+        boolean running = true;
+        while (running) {
             System.out.println("type your input");
 
             String input = scanner.nextLine();
             String[] splittedLine = input.split("~");
-            switch (splittedLine[0]) {
-                case "GET" -> getRequest(client, splittedLine[1]);
-                case "SEND" -> sendRequest(client, splittedLine[1]);
-                case "DELETE" -> deleteRequest(client,splittedLine[1]);
+
+            switch (splittedLine[0].toUpperCase()) {
+                case "GET" -> {
+                    if (splittedLine.length  == 1) {
+                        System.out.println("please add a filename");
+                    } else {
+                        getRequest(client, splittedLine[1]);
+                    }
+                }
+                case "SEND" -> {
+                    if (splittedLine.length  == 1) {
+                        System.out.println("please add a filename");
+                    } else {
+                        sendRequest(client, splittedLine[1]);
+                    }
+                }
+                case "DELETE" -> {
+                    if (splittedLine.length  == 1) {
+                        System.out.println("please add a filename");
+                    } else {
+                        deleteRequest(client, splittedLine[1]) ;
+                    }
+                }
                 case "LISTFILES" -> getList(client);
                 case "HELP" -> System.out.println(help);
+                case "QUIT" -> running = false;
 
                 default -> System.out.println("Do not understand this line :" + input);
             }
 
-            System.out.println("If you want to quit the program type : quit.");
-            if (scanner.nextLine().equalsIgnoreCase("quit")) {
-                break;
-            }
+
         }
 
 
@@ -60,6 +82,7 @@ public class ClientTUI {
         } catch (ServerGivesErrorException e) {
             System.out.println("Error from server get " + filename + "failed");
         }
+
     }
 
     private static void sendRequest(Client client, String filename) {
@@ -67,7 +90,7 @@ public class ClientTUI {
             client.sendRequest(filename);
         } catch (FileNotExistException e) {
             System.out.println("File does not exist");
-        }catch (ServerGivesErrorException e){
+        } catch (ServerGivesErrorException e) {
             System.out.println("error from server task not completed");
         } catch (IOException e) {
             System.out.println("Something is wrong with the socket so request could be handled ");
@@ -98,6 +121,7 @@ public class ClientTUI {
     /**
      * Get the InetAddress from user input.
      * Checks if the input is am inetAddress.
+     *
      * @return InetAddress
      */
     private static InetAddress getInetAddress(Scanner scanner) {
@@ -122,6 +146,7 @@ public class ClientTUI {
 
     /**
      * Get the port number from user input and checks it's an  integer.
+     *
      * @return portNumber
      */
     private static int getPortNumber(Scanner scanner) {
