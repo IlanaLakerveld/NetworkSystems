@@ -52,11 +52,14 @@ public class ClientTUI {
 
     }
 
-
-
-
     private static void getRequest(Client client, String filename) {
-        client.getRequest(filename);
+        try {
+            client.getRequest(filename);
+        } catch (IOException e) {
+            System.out.println("Something is wrong with the socket so request could be handled ");
+        } catch (ServerGivesErrorException e) {
+            System.out.println("Error from server get " + filename + "failed");
+        }
     }
 
     private static void sendRequest(Client client, String filename) {
@@ -66,6 +69,8 @@ public class ClientTUI {
             System.out.println("File does not exist");
         }catch (ServerGivesErrorException e){
             System.out.println("error from server task not completed");
+        } catch (IOException e) {
+            System.out.println("Something is wrong with the socket so request could be handled ");
         }
     }
 
@@ -74,6 +79,8 @@ public class ClientTUI {
             client.deleteRequest(filename);
         } catch (FileNotExistException e) {
             System.out.println("The file is not deleted");
+        } catch (IOException e) {
+            System.out.println("Something is wrong with the socket so request could be handled ");
         }
     }
 

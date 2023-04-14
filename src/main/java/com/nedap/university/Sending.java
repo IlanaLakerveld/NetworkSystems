@@ -53,7 +53,7 @@ public class Sending {
 
             //set time out
             new TimeOut(100,this,packetToSend) ;
-
+            // todo ? wil je hier niet ook checken of ack flag is set
             // waiting for the acknowledgement
             boolean stopSending = true;
             while (stopSending) { // toDo wil je dit alleen als je je window size straks bereikt is?
