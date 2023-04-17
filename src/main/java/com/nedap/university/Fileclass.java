@@ -7,7 +7,7 @@ import java.io.*;
  */
 public final class Fileclass {
 
-    // Todo from challenge 2
+    // TODO will je hier andere manier exceptions opvangen
     public static byte[] loadFile(File file) {
 
         try (FileInputStream fileStream = new FileInputStream(file)) {

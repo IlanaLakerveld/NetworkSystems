@@ -105,6 +105,7 @@ public class Main {
             sendErrorPacket("file does not exist", request, socket);
         } else {
             byte[] byteFile = Fileclass.loadFile(file);
+            sendACK(request, socket, "getRequestsAck");
             Sending send = new Sending(socket);
             send.sending(byteFile, request.getAddress(), request.getPort());
             System.out.println("Done Sending");
@@ -120,7 +121,7 @@ public class Main {
             sendErrorPacket("file already exist, if you want to replace this file try replace", request, socket);
         } else {
 
-            sendACK(request, socket);
+            sendACK(request, socket, "receivefile");
 
             Receiver receiver = new Receiver();
             byte[] receivedFile = receiver.receiver(socket, request.getAddress(), request.getPort());
@@ -128,13 +129,14 @@ public class Main {
                 Fileclass.makeFileFromBytes(filename, receivedFile);
             }
 
+
         }
 
     }
 
 
-    private static void sendACK(DatagramPacket request, DatagramSocket socket) throws IOException {
-        byte[] ack = MakePacket.makePacket(new byte[]{1}, 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, true, false, false, false, false, false), 0, 0);
+    private static void sendACK(DatagramPacket request, DatagramSocket socket, String testline) throws IOException {
+        byte[] ack = MakePacket.makePacket(testline.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, true, false, false, false, false, false), 0, 0);
         DatagramPacket packet = new DatagramPacket(ack, 0, ack.length, request.getAddress(), request.getPort());
         socket.send(packet);
     }
@@ -148,8 +150,8 @@ public class Main {
     }
 
     private static void replaceFile(DatagramPacket request, DatagramSocket socket, String filename) throws IOException {
-        if(deleteFile(request, socket, filename)){
-            receiveFile(request,socket,filename);
+        if (deleteFile(request, socket, filename)) {
+            receiveFile(request, socket, filename);
         }
     }
 
@@ -162,12 +164,12 @@ public class Main {
         } else {
             if (file.delete()) {
                 System.out.println("file deleted");
-                sendACK(request, socket);
-                return true ;
+                sendACK(request, socket, "deletefile" + filename);
+                return true;
             } else {
                 System.out.println("Something went wrong deleting the file send error message");
                 sendErrorPacket("Something went wrong deleting the message", request, socket);
-                return false ;
+                return false;
             }
 
         }
@@ -192,10 +194,7 @@ public class Main {
         if (list != null) {
             StringBuilder stringListBuilder = new StringBuilder(stringList);
             for (File file : list) {
-                if (file.isDirectory()) {
-                    //TODO
-//                    stringList += getStringOfNamesOfAllTheFilesInTheDirectory(file, stringList);
-                } else if (file.isFile()) {
+                if (file.isFile()) {
                     stringListBuilder.append(file.getName());
                     stringListBuilder.append("\n");
                 }

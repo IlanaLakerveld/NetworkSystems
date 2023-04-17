@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SendingTest {
 
+    // TODO can see that you resent something by a time out but it is not a working test
     @Test
     public void ResentTest(){
         int port = 62826;
