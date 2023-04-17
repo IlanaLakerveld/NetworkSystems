@@ -44,6 +44,7 @@ public class Client {
             Receiver receiver = new Receiver();
             byte[] receivedFile = receiver.receiver(datagramSocket, address, port);
             // Check if there is not an error occurred while receiving the file.
+            System.out.println("received something");
             if (new String(receivedFile).contains("ERROR")) {
                 throw new ServerGivesErrorException(new String(receivedFile));
             } else {
@@ -158,12 +159,13 @@ public class Client {
     }
 
     private void MakeAndSendInitialPacket(String filename, DatagramSocket socket, byte flag) throws IOException {
+        // TODO ga je hier nog wat mee doen???
         int sequenceNumber = (int) (Math.random() * 10000);
         // acknowledgement window size and session number are set zero.
         byte[] packet = MakePacket.makePacket(filename.getBytes(), sequenceNumber, 0, flag, 0, 0);
         DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
         socket.send(packetToSend);
-        new TimeOut(50, socket ,packetToSend, this) ;
+        new TimeOut(1000, socket ,packetToSend, this) ;
     }
 
 
