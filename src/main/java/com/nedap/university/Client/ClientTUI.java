@@ -22,13 +22,16 @@ public class ClientTUI {
             GET~filename  to get a file from the server
             SEND~filename  to send a file from the server
             DELETE~filename to remove a filename from the server
+            REPLACE~filename to replace a file
             LISTFILES to get al list of possible files
             QUIT stop the program""";
 
 
     public static void main(String[] args) {
+
         Scanner scanner = new Scanner(System.in);
 
+        // Ask information about the server you want to connect to.
         InetAddress serverAddress = getInetAddress(scanner);
         int portNumber = getPortNumber(scanner);
         Client client = new Client(portNumber, serverAddress);
@@ -43,25 +46,33 @@ public class ClientTUI {
 
             switch (splitLine[0].toUpperCase()) {
                 case "GET" -> {
-                    if (splitLine.length  == 1) {
+                    if (splitLine.length == 1) {
                         System.out.println("please add a filename");
                     } else {
                         getRequest(client, splitLine[1]);
                     }
                 }
                 case "SEND" -> {
-                    if (splitLine.length  == 1) {
+                    if (splitLine.length == 1) {
                         System.out.println("please add a filename");
                     } else {
                         sendRequest(client, splitLine[1]);
                     }
                 }
                 case "DELETE" -> {
-                    if (splitLine.length  == 1) {
+                    if (splitLine.length == 1) {
                         System.out.println("please add a filename");
                     } else {
-                        deleteRequest(client, splitLine[1]) ;
+                        deleteRequest(client, splitLine[1]);
                     }
+                }
+                case "REPLACE" -> {
+                    if (splitLine.length == 1) {
+                        System.out.println("please add a filename");
+                    } else {
+                        replaceRequest(client, splitLine[1]);
+                    }
+
                 }
                 case "LISTFILES" -> getList(client);
                 case "HELP" -> System.out.println(help);
@@ -85,6 +96,16 @@ public class ClientTUI {
             System.out.println("Error from server get " + filename + "failed");
         }
 
+    }
+
+    private static void replaceRequest(Client client, String filename) {
+        try {
+            client.replaceRequest(filename);
+        } catch (FileNotExistException e) {
+            System.out.println("File does not exist on the server ");
+        } catch (IOException e) {
+            System.out.println("Something is wrong with the socket so request could be handled ");
+        }
     }
 
     private static void sendRequest(Client client, String filename) {

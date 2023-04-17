@@ -32,22 +32,19 @@ public class Receiver {
             // flag is set if something went wrong
             if (MakePacket.getFlag(request.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
                 String errorMessage = new String(receivedPacket, MakePacket.personalizedHeaderLength, request.getLength());
-//                System.out.println("ERROR " + errorMessage.trim());
                 return ("ERROR" + errorMessage.trim()).getBytes()  ;
             }
 
 
-            int seqNum = MakePacket.getSequenceNumber(receivedPacket);
 
             int checksum = MakePacket.getCheckSumInteger(receivedPacket);
-            // TOdo give logical input for checksum and add the checksum
-
             if ((checksum != MakePacket.checksum(MakePacket.getInputForChecksumWithoutHeader(receivedPacket)))) { //
                 System.out.println("checksum is incorrect");
             } else {
 
-                // toDo change sending???
+
                 // sending an acknowledgement
+                int seqNum = MakePacket.getSequenceNumber(receivedPacket);
                 byte[] ack = MakePacket.makePacket(new byte[]{1}, 0, seqNum, MakePacket.setFlags(false,true,false,false,false,false,false), windowSize, MakePacket.getSessionNumber(receivedPacket));
                 DatagramPacket packet = new DatagramPacket(ack, 0, ack.length, address, port);
                 socket.send(packet);
