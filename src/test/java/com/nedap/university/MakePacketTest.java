@@ -36,13 +36,13 @@ class MakePacketTest {
 
     @Test
     public void getInputforChecksumWithoutHeaderTest(){
-        byte[] byteArray = new byte[]{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1} ;
+        byte[] byteArray = new byte[]{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1} ;
         byte[] output = MakePacket.getInputForChecksumWithoutHeader(byteArray);
         // check if the checksum values are zero
         assertEquals(0,output[12]) ;
         assertEquals(0,output[13]);
-        // Check if it is the length of the header
-        assertEquals(MakePacket.personalizedHeaderLength,output.length);
+        // Check if length of the byte array
+        assertEquals(byteArray.length,output.length);
 
     }
 
@@ -54,7 +54,7 @@ class MakePacketTest {
         int windowSize = 4236 ;
         int sessionNumber = 23;
 
-        byte[] output = MakePacket.personalizedHeader(sequenceNumber, ack, flags, windowSize, sessionNumber);
+        byte[] output = MakePacket.personalizedHeader(sequenceNumber, ack, flags, windowSize, sessionNumber,new byte[]{1,'a',54});
 
         assertEquals(sequenceNumber, MakePacket.getSequenceNumber(output));
         assertEquals(ack, MakePacket.getAckNumber(output));
