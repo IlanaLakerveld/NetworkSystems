@@ -6,6 +6,7 @@ import com.nedap.university.Fileclass;
 import com.nedap.university.MakePacket;
 import com.nedap.university.Receiver;
 import com.nedap.university.Sending;
+import com.nedap.university.Timer.TimeOut;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,30 +22,39 @@ public class Client {
     public int port;
     public InetAddress address;
 
+    private boolean gotACK ;
+
+
+
     public Client(int port, InetAddress address) {
         this.port = port;
         this.address = address;
+        gotACK = false;
 
     }
 
 
     public void getRequest(String filename) throws IOException, ServerGivesErrorException {
-
+        setGotACK(false);
         DatagramSocket datagramSocket = new DatagramSocket();
         MakeAndSendInitialPacket(filename, datagramSocket, MakePacket.setFlags(false, false, false, true, false, false, false));
         // call the function that handles receiving a packet
-        Receiver receiver = new Receiver();
-        byte[] receivedFile = receiver.receiver(datagramSocket, address, port);
-        // Check if there is not an error occurred while receiving the file.
-        if (new String(receivedFile).contains("ERROR")) {
-            throw new ServerGivesErrorException(new String(receivedFile));
-        } else {
-            Fileclass.makeFileFromBytes(filename, receivedFile);
+        DatagramPacket ackAnswer = getAcknowledgementPacket(datagramSocket);
+        if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)) {
+            Receiver receiver = new Receiver();
+            byte[] receivedFile = receiver.receiver(datagramSocket, address, port);
+            // Check if there is not an error occurred while receiving the file.
+            if (new String(receivedFile).contains("ERROR")) {
+                throw new ServerGivesErrorException(new String(receivedFile));
+            } else {
+                Fileclass.makeFileFromBytes(filename, receivedFile);
+            }
         }
 
     }
 
     public void sendRequest(String filename) throws FileNotExistException, ServerGivesErrorException, IOException {
+        setGotACK(false);
         File file = new File(filename);
         if (!file.exists()) {
             throw new FileNotExistException("Can not send it because file does not exist");
@@ -72,6 +82,7 @@ public class Client {
     }
 
     public void replaceRequest(String filename) throws IOException, FileNotExistException {
+        setGotACK(false);
         File file = new File(filename);
         if (!file.exists()) {
             throw new FileNotExistException("Can not send it because file does not exist");
@@ -102,9 +113,11 @@ public class Client {
 
 
     public void deleteRequest(String filename) throws FileNotExistException, IOException {
+        setGotACK(false);
         DatagramSocket socket = new DatagramSocket();
         MakeAndSendInitialPacket(filename, socket,MakePacket.setFlags(false, false, false, false, true, false, false));
         DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
+        System.out.println(new String(ackAnswer.getData()));
         if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
             String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
             throw new FileNotExistException("ERROR " + errorMessage.trim());
@@ -117,6 +130,7 @@ public class Client {
     }
 
     public void getListRequest() throws IOException, ServerGivesErrorException {
+        setGotACK(false);
         DatagramSocket socket = new DatagramSocket();
         MakeAndSendInitialPacket("", socket,MakePacket.setFlags(false, false, false, false, false, false, true));
         DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
@@ -131,14 +145,15 @@ public class Client {
             System.out.println(list);
         }
         else{
-            System.out.println("unknown input ");
+            System.out.println("Unknown input ");
         }
     }
 
-    private static DatagramPacket getAcknowledgementPacket(DatagramSocket socket) throws IOException {
+    private DatagramPacket getAcknowledgementPacket(DatagramSocket socket) throws IOException {
         byte[] buffer = new byte[512]; // this is the maximum a packet size you can receive
         DatagramPacket ackAnswer = new DatagramPacket(buffer, buffer.length); // this request is the filled with data
         socket.receive(ackAnswer);
+        setGotACK(true);
         return ackAnswer;
     }
 
@@ -148,6 +163,15 @@ public class Client {
         byte[] packet = MakePacket.makePacket(filename.getBytes(), sequenceNumber, 0, flag, 0, 0);
         DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
         socket.send(packetToSend);
+        new TimeOut(50, socket ,packetToSend, this) ;
     }
 
+
+    public boolean isGotACK() {
+        return gotACK;
+    }
+
+    public void setGotACK(boolean gotACK) {
+        this.gotACK = gotACK;
+    }
 }

@@ -35,8 +35,12 @@ class ClientTest {
        //TOdo
     }
 
+
+    /**
+     * Test if it gets errors on the write time.
+     */
     @Test
-    public void sendRequestTest() throws InterruptedException {
+    public void sendRequestTest()  {
         // File bestaat niet dus krijg je die system out terug
         assertThrows(FileNotExistException.class, this::notExistedInputTest);
 
@@ -46,14 +50,20 @@ class ClientTest {
 
         assertThrows(ServerGivesErrorException.class, this::getErrorTest);
 
-        // als alles wel werkt??
 
     }
 
+    /**
+     * This function is used for sendRequestTest()
+     */
     private void notExistedInputTest() throws FileNotExistException, ServerGivesErrorException, IOException {
         client.sendRequest("notExistedFile.png");
     }
 
+
+    /**
+     * This function is used for sendRequestTest()
+     */
     private void getErrorTest() throws ServerGivesErrorException, FileNotExistException, IOException {
         client.sendRequest("somefile.pdf");
     }
@@ -91,11 +101,10 @@ class ClientTest {
         }
 }
 
-    private void getErrorTestDelete() throws ServerGivesErrorException, FileNotExistException, IOException {
-        client.deleteRequest("somefile.pdf");
-    }
 
-
+    /**
+     * Test if it gets errors on the write time.
+     */
     @Test
     public void deleteRequestTest() {
         TestServerGivesError testServer = new TestServerGivesError();
@@ -103,4 +112,46 @@ class ClientTest {
         assertThrows(FileNotExistException.class, this::getErrorTestDelete);
 
     }
+
+    /**
+     * This function is used for deleteRequestTest
+     */
+    private void getErrorTestDelete() throws ServerGivesErrorException, FileNotExistException, IOException {
+        client.deleteRequest("somefile.pdf");
+    }
+
+    /**
+     * Test if it gets errors on the write time.
+     */
+    @Test
+    public void listFilesTest(){
+        TestServerGivesError testServer = new TestServerGivesError();
+        new Thread(testServer).start();
+        assertThrows(ServerGivesErrorException.class, this::getErrorTestListFiles);
+    }
+
+    /**
+     * This function is used for listFilesTest
+     */
+    private void getErrorTestListFiles() throws ServerGivesErrorException, IOException {
+        client.getListRequest();
+    }
+
+
+    /**
+     * Test if it gets errors on the write time.
+     */
+    @Test
+    public void replaceTest(){
+        assertThrows(FileNotExistException.class, this::notExistedInputReplaceTest);
+
+    }
+
+    private void notExistedInputReplaceTest() throws FileNotExistException, IOException {
+        client.replaceRequest("notExistedFile.png");
+    }
+
+
+
+
 }

@@ -73,7 +73,7 @@ public final class MakePacket {
         header[14] = (byte) (sessionNumber >> 8);
         header[15] = (byte) (sessionNumber & 0xff);
 
-        //todo only header in checksum??
+
         byte[] inputChecksum = new byte[header.length + payload.length];
         System.arraycopy(header,0,inputChecksum,0,header.length);
         System.arraycopy(payload,0,inputChecksum,header.length,payload.length);
