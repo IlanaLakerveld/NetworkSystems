@@ -35,7 +35,7 @@ public class Client {
         // call the function that handles receiving a packet
         Receiver receiver = new Receiver();
         byte[] receivedFile = receiver.receiver(datagramSocket, address, port);
-
+        // Check if there is not an error occurred while receiving the file.
         if (new String(receivedFile).contains("ERROR")) {
             throw new ServerGivesErrorException(new String(receivedFile));
         } else {
@@ -51,9 +51,8 @@ public class Client {
         } else {
             DatagramSocket socket = new DatagramSocket();
             MakeAndSendInitialPacket(filename, socket, MakePacket.setFlags(false, false, true, false, false, false, false));
-
             DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
-
+            // check if the input is an acknowledgement or an error.
             if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
                 String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
                 throw new ServerGivesErrorException("ERROR " + errorMessage.trim());
@@ -69,6 +68,35 @@ public class Client {
             }
 
         }
+
+    }
+
+    public void replaceRequest(String filename) throws IOException, FileNotExistException {
+        File file = new File(filename);
+        if (!file.exists()) {
+            throw new FileNotExistException("Can not send it because file does not exist");
+        }
+        else {
+            DatagramSocket socket = new DatagramSocket();
+            MakeAndSendInitialPacket(filename, socket, MakePacket.setFlags(false, false, true, false, true, false, false));
+            DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
+            // check if the input is an acknowledgement or an error.
+            if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
+                String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
+                throw new FileNotExistException("ERROR " + errorMessage.trim());
+            } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)) {
+                System.out.println("File is deleted");
+                byte[] bytefile = Fileclass.loadFile(file);
+                Sending send = new Sending(socket);
+                send.sending(bytefile, ackAnswer.getAddress(), ackAnswer.getPort());
+                System.out.println("Send");
+            } else {
+                System.out.println("it's not the ack packet that is received or an error");
+            }
+        }
+
+
+
 
     }
 
