@@ -12,27 +12,27 @@ import java.net.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClientTest {
-    Client client ;
-    @BeforeEach
-    public void setUp(){
+    Client client;
 
-        int port = 23456 ;
+    @BeforeEach
+    public void setUp() {
+
+        int port = 23456;
 
         try {
             InetAddress address = InetAddress.getByName("localhost");
 
-            client = new Client(port,address );
+            client = new Client(port, address);
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
-
 
 
     }
 
     @Test
     public void getRequestTest() {
-       //TOdo
+        //TOdo
     }
 
 
@@ -40,7 +40,7 @@ class ClientTest {
      * Test if it gets errors on the write time.
      */
     @Test
-    public void sendRequestTest()  {
+    public void sendRequestTest() {
         // File bestaat niet dus krijg je die system out terug
         assertThrows(FileNotExistException.class, this::notExistedInputTest);
 
@@ -73,7 +73,7 @@ class ClientTest {
      * Some dummy server die only sends back an error flagged packet so can see on the clientside how that handles that kind of packets.
      */
     public class TestServerGivesError implements Runnable {
-        public void run(){
+        public void run() {
             DatagramSocket datagramSocket = null;
             try {
                 datagramSocket = new DatagramSocket(23456);
@@ -88,7 +88,7 @@ class ClientTest {
                 throw new RuntimeException(e);
             }
             // only the flags is important
-            byte[] errorPacket = MakePacket.makePacket("Some Error Message here".getBytes(), 0, 0, MakePacket.setFlags(false, false, false, false, false, true,false), 0, 0);
+            byte[] errorPacket = MakePacket.makePacket("Some Error Message here".getBytes(), 0, 0, MakePacket.setFlags(false, false, false, false, false, true, false), 0, 0);
             DatagramPacket errorPacketDatagram = null;
             errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length, request.getAddress(), request.getPort());
 
@@ -99,7 +99,7 @@ class ClientTest {
             }
             datagramSocket.close();
         }
-}
+    }
 
 
     /**
@@ -124,7 +124,7 @@ class ClientTest {
      * Test if it gets errors on the write time.
      */
     @Test
-    public void listFilesTest(){
+    public void listFilesTest() {
         TestServerGivesError testServer = new TestServerGivesError();
         new Thread(testServer).start();
         assertThrows(ServerGivesErrorException.class, this::getErrorTestListFiles);
@@ -142,7 +142,7 @@ class ClientTest {
      * Test if it gets errors on the write time.
      */
     @Test
-    public void replaceTest(){
+    public void replaceTest() {
         assertThrows(FileNotExistException.class, this::notExistedInputReplaceTest);
 
     }
@@ -151,9 +151,14 @@ class ClientTest {
         client.replaceRequest("notExistedFile.png");
     }
 
+    @Test
+    public void printFilenameFromDataPacketTest() {
+        String printString = "naam1\nnaam2\nnaam3";
+        byte[] input = MakePacket.makePacket(printString.getBytes(), 0, 0, (byte) 0, 0, 0);
+        DatagramPacket a = new DatagramPacket(input, input.length);
+        client.printFilenameFromDataPacket(a);
 
-
-
+    }
 
 
 }

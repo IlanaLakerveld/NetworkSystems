@@ -180,9 +180,9 @@ public class Client {
      * Prints the different filenames.
      * @param ackAnswer Data packet with filenames in it.
      */
-    private static void printFilenameFromDataPacket(DatagramPacket ackAnswer) {
+    public  void printFilenameFromDataPacket(DatagramPacket ackAnswer) {
         System.out.println("The names of the files are :");
-        String list = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
+        String list = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength()-MakePacket.personalizedHeaderLength);
         list = list.trim();
         System.out.println(list);
     }
