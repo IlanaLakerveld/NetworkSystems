@@ -33,6 +33,7 @@ public class Receiver {
 
 
         while (!finished) {
+            System.out.println("start");
 
             // receive packet
             byte[] receivedPacket = new byte[DATASIZE];
@@ -74,7 +75,9 @@ public class Receiver {
                     file = Arrays.copyOf(file, oldLength + (receivedPacket.length - MakePacket.personalizedHeaderLength));
                     System.arraycopy(receivedPacket, MakePacket.personalizedHeaderLength, file, oldLength, (receivedPacket.length - MakePacket.personalizedHeaderLength));
                     lastReceivedPacket = seqNum;
-                    //TODO als flag true is moet je ook de ander case melden
+                    if(MakePacket.getFlag(receivedPacket) == 1){
+                        finished =true ;
+                    }
 
                     while (!bufferPackets.isEmpty()) {
                         if (bufferPackets.containsKey(lastReceivedPacket + normalPayloadLength)) {

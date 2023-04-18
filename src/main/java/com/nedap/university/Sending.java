@@ -67,7 +67,6 @@ public class Sending {
                 byte[] packet = MakePacket.makePacket(data, (lastFrameSend + lengthPayloadSend), 0, flagsByte, windowSize, sessionNumber);
                 DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
                 socket.send(packetToSend);
-                System.out.println("last frame received is : "+ lastFrameSend);
                 //set time out
                 lastFrameSend += lengthPayloadSend;
                 new TimeOut(1000, this, packetToSend);
@@ -103,6 +102,7 @@ public class Sending {
         }
 
         private void extracted() throws IOException {
+            System.out.println("Start sending");
             while (!finished) {
                 List<Integer> ACKBuffer = new ArrayList<>();
                 byte[] ackPacket = new byte[MakePacket.personalizedHeaderLength + 1];
@@ -110,7 +110,7 @@ public class Sending {
 
 
                 socket.receive(obtainedDatagram);
-                System.out.println("packet received "+ MakePacket.getAckNumber(obtainedDatagram.getData()));
+
 
 
                 // todo ? wil je hier niet ook checken of ack flag is set dan kan namelijk ook error flag gezet worden
@@ -122,7 +122,7 @@ public class Sending {
 
                         // check is this is the acknowledgement number you expect
                         int ack = MakePacket.getAckNumber(ackPacket);
-                        if (ack == (lastFrameAcknowlegded + lengthPayloadSend) || ack == lastFrameAcknowlegded + (DATASIZE - MakePacket.personalizedHeaderLength)) { // werkt alleen zo als stop & wait is
+                        if (ack == (lastFrameAcknowlegded + lengthPayloadSend) || ack == (lastFrameAcknowlegded + (DATASIZE - MakePacket.personalizedHeaderLength))) { // werkt alleen zo als stop & wait is
                             lastFrameAcknowlegded += lengthPayloadSend;
                             while (!ACKBuffer.isEmpty()) {
                                 if (ACKBuffer.contains(lastFrameAcknowlegded + (DATASIZE - MakePacket.personalizedHeaderLength))) {
@@ -138,7 +138,7 @@ public class Sending {
                         } else if (ack > lastFrameAcknowlegded && ack <= lastFrameSend) {
                             ACKBuffer.add(ack);
                         } else {
-                            System.out.println("get an ack out of range ");
+                            System.out.println("Get an ack out of range ");
                         }
 
 
@@ -146,10 +146,10 @@ public class Sending {
 
                     if (lastFrameAcknowlegded == file.length) {
                         finished = true;
-                        System.out.println("finished");
+                        System.out.println("Finished");
                     }
                 } else {
-                    System.out.println("this is not an acknowledgement packet");
+                    System.out.println("This is not an acknowledgement packet");
                     System.out.println(MakePacket.getFlag(obtainedDatagram.getData()));
 
                 }

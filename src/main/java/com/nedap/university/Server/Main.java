@@ -44,7 +44,7 @@ public class Main {
                     filename = filename.trim();
                     byte flag = MakePacket.getFlag(request.getData());
 
-                    if (flag == MakePacket.setFlags(false, false, true, false, false, false, false)) {
+                    if (flag == MakePacket.getFlagByte) {
                         System.out.println("start receiving");
                         receiveFile(request, socket, filename);
                     } else if (flag == MakePacket.setFlags(false, false, false, true, false, false, false)) {
@@ -104,8 +104,8 @@ public class Main {
             System.out.println("file does not exist");
             sendErrorPacket("file does not exist", request, socket);
         } else {
-            byte[] byteFile = Fileclass.loadFile(file);
             sendACK(request, socket, "getRequestsAck");
+            byte[] byteFile = Fileclass.loadFile(file);
             Sending send = new Sending(socket);
             send.sending(byteFile, request.getAddress(), request.getPort());
             System.out.println("Done Sending");
