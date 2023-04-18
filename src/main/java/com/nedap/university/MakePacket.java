@@ -15,6 +15,7 @@ public final class MakePacket {
     public static final byte getFlagByte = MakePacket.setFlags(false,false,false,true,false,false,false);
     public static final byte removeFlagByte = MakePacket.setFlags(false,false,false,false,true,false,false);
     public static final byte listFlagByte = MakePacket.setFlags(false,false,false,false,false,false,true);
+    public static final byte finFlagByte = MakePacket.setFlags(true,false,false,false,false,false,false);
 
     /**
      * @param payload actual data

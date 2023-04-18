@@ -19,9 +19,7 @@ import static java.lang.Thread.sleep;
  */
 public class Sending {
 
-
-    // TOdo wil je dit static houden of wil je dit kunnen veranderen.??
-    static final int DATASIZE = 512;   // max. number of user data bytes in each packet
+    static final int DATASIZE = 512;   // max. number of user data bytes in each packet. ONLY CHANGE AT BOTH SIDES
     public int lastFrameAcknowlegded;
     public int lastFrameSend ;
     public  boolean finished ;
@@ -38,28 +36,27 @@ public class Sending {
 
         this.file = file ;
         int totalNumberOfPackets = ((file.length / (DATASIZE - MakePacket.personalizedHeaderLength)) + 1); // naar boven afronden
-        lastFrameAcknowlegded = 0; // Todo change? is dit niet sequment number or acknowlegded number ?
+        lastFrameAcknowlegded = 0;
         lastFrameSend = 0;
         finished = false;
-        int windowSize = 8; // Sliding window protocol with fixed window size
+        int windowSize = 32; // Sliding window protocol with fixed window size
 
         byte flagsByte = MakePacket.setFlags(false, false, false, false, false, false, false);
         int sessionNumber = (int) (Math.random() * 1000);  // Todo change kan nu alleen maar number tussen 1-1000 zijn wil je deze niet naar je server plaatsen? 
         System.out.println("total number of packets are " + totalNumberOfPackets);
         lengthPayloadSend = 0;
-        Thread t = new Thread(new recevingACK());
-        t.start();
+        Thread tread = new Thread(new recevingACK());
+        tread.start();
 
         while (!finished) {
 
             // only send when window size is not reached
-
             if ((lastFrameSend - lastFrameAcknowlegded) <= sessionNumber && lastFrameSend < file.length) {
                 // create and send a new packet of appropriate size
                 lengthPayloadSend = Math.min(DATASIZE - MakePacket.personalizedHeaderLength, file.length - lastFrameSend);
                 // check if it is the last file you are going to send
                 if (lengthPayloadSend + lastFrameSend == file.length) {
-                    flagsByte = MakePacket.setFlags(true, false, false, false, false, false, false);
+                    flagsByte = MakePacket.finFlagByte;
 
                 }
                 // send the packet
@@ -72,6 +69,7 @@ public class Sending {
                 new TimeOut(1000, this, packetToSend);
             }
             else{
+                // WINDOW size is reached sleep so you can receive some acknowlegdements
                 try {
                     sleep(10) ;
                 } catch (InterruptedException e) {
@@ -80,11 +78,7 @@ public class Sending {
             }
 
         }
-        try {
-            t.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
 
 
     }

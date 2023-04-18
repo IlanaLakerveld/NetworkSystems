@@ -33,7 +33,7 @@ public class Receiver {
 
 
         while (!finished) {
-            System.out.println("start");
+
 
             // receive packet
             byte[] receivedPacket = new byte[DATASIZE];

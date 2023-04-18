@@ -1,5 +1,4 @@
 package com.nedap.university.Server;
-
 import com.nedap.university.Fileclass;
 import com.nedap.university.MakePacket;
 import com.nedap.university.Receiver;
@@ -44,7 +43,7 @@ public class Main {
                     filename = filename.trim();
                     byte flag = MakePacket.getFlag(request.getData());
 
-                    if (flag == MakePacket.getFlagByte) {
+                    if (flag == MakePacket.sendFlagByte) {
                         System.out.println("start receiving");
                         receiveFile(request, socket, filename);
                     } else if (flag == MakePacket.setFlags(false, false, false, true, false, false, false)) {
@@ -104,11 +103,17 @@ public class Main {
             System.out.println("file does not exist");
             sendErrorPacket("file does not exist", request, socket);
         } else {
+
             sendACK(request, socket, "getRequestsAck");
+            long starttime = System.nanoTime();
             byte[] byteFile = Fileclass.loadFile(file);
+            long endtime =System.nanoTime() ;
+            System.out.println("Time to upload in ms " + ((endtime-starttime)/1000000) );
+            starttime = System.nanoTime();
             Sending send = new Sending(socket);
             send.sending(byteFile, request.getAddress(), request.getPort());
-            System.out.println("Done Sending");
+            endtime =System.nanoTime() ;
+            System.out.println("Time to send in ms = " + ((endtime-starttime)/1000000));
         }
 
 
