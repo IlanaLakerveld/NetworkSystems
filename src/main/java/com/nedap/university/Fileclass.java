@@ -26,8 +26,8 @@ public final class Fileclass {
     }
 
     public static void makeFileFromBytes(String filename, byte[] fileInBytes) {
-        String filenametest = filename.trim();
-        File fileToWrite = new File(filenametest);
+        String filenameTrimmed = filename.trim();
+        File fileToWrite = new File(filenameTrimmed);
         // because file does not exist
         try {
             fileToWrite.createNewFile();
