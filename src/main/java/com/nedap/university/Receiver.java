@@ -30,7 +30,7 @@ public class Receiver {
             DatagramPacket request = new DatagramPacket(receivedPacket, receivedPacket.length);
             socket.receive(request);
             // flag is set if something went wrong
-            if (MakePacket.getFlag(request.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
+            if (MakePacket.getFlag(request.getData()) == MakePacket.errorFlagByte) {
                 String errorMessage = new String(receivedPacket, MakePacket.personalizedHeaderLength, request.getLength());
                 return ("ERROR" + errorMessage.trim()).getBytes()  ;
             }
@@ -45,7 +45,7 @@ public class Receiver {
 
                 // sending an acknowledgement
                 int seqNum = MakePacket.getSequenceNumber(receivedPacket);
-                byte[] ack = MakePacket.makePacket(new byte[]{1}, 0, seqNum, MakePacket.setFlags(false,true,false,false,false,false,false), windowSize, MakePacket.getSessionNumber(receivedPacket));
+                byte[] ack = MakePacket.makePacket(new byte[]{1}, 0, seqNum, MakePacket.ackFlagByte, windowSize, MakePacket.getSessionNumber(receivedPacket));
                 DatagramPacket packet = new DatagramPacket(ack, 0, ack.length, address, port);
                 socket.send(packet);
                 // only if it is a new packet then you need to add it
@@ -57,7 +57,7 @@ public class Receiver {
                     lastReceivedPacket = seqNum;
 
                     // check if this is the last packet
-                    if ((receivedPacket[9] & 1) == 1) { //if fin flag is set
+                    if ((MakePacket.getFlag(receivedPacket) & 1) == 1) { //if fin flag is set
                         finished = true;
                         System.out.println("finished receiving");
                     }

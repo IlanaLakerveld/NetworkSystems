@@ -32,6 +32,7 @@ public class Sending {
         filePointer = 0; // Todo change? is dit niet sequment number or acknowlegded number ?
         boolean finished = false;
         int windowSize = 1; // Stop en wait protocol
+        // todo WIl je dit een lege byte flag houdne
         byte flagsByte = MakePacket.setFlags(false, false, false, false, false, false, false);
         int sessionNumber = (int) (Math.random() * 1000);  // Todo change kan nu alleen maar number tussen 1-1000 zijn wil je deze niet naar je server plaatsen? 
         System.out.println("total number of packets are " + totalNumberOfPackets);
@@ -43,7 +44,7 @@ public class Sending {
             int lengthPayloadSend = Math.min(DATASIZE - MakePacket.personalizedHeaderLength, file.length - filePointer);
             // check if it is the last file you are going to send 
             if (lengthPayloadSend + filePointer == file.length) {
-                flagsByte = MakePacket.setFlags(true, false, false, false, false, false, false);
+                flagsByte = MakePacket.finFlagByte;
 
             }
             // send the packet

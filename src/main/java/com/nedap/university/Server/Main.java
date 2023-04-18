@@ -44,19 +44,19 @@ public class Main {
                     filename = filename.trim();
                     byte flag = MakePacket.getFlag(request.getData());
 
-                    if (flag == MakePacket.setFlags(false, false, true, false, false, false, false)) {
+                    if (flag == MakePacket.sendFlagByte) {
                         System.out.println("start receiving");
                         receiveFile(request, socket, filename);
-                    } else if (flag == MakePacket.setFlags(false, false, false, true, false, false, false)) {
+                    } else if (flag == MakePacket.getFlagByte) {
                         System.out.println("client want to get a packet");
                         respondToGetRequest(request, socket, filename);
-                    } else if (flag == MakePacket.setFlags(false, false, false, false, true, false, false)) {
+                    } else if (flag == MakePacket.removeFlagByte) {
                         System.out.println("client want to remove a packet");
                         deleteFile(request, socket, filename);
-                    } else if (flag == MakePacket.setFlags(false, false, false, false, false, false, true)) {
+                    } else if (flag == MakePacket.listFlagByte) {
                         System.out.println("client want a list of files ");
                         getListOfFiles(request, socket);
-                    } else if (flag == MakePacket.setFlags(false, false, true, false, true, false, false)) {
+                    } else if (flag == MakePacket.replaceFlagByte) {
                         System.out.println("client want to replace a file");
                         replaceFile(request, socket, filename);
                     } else {
@@ -136,14 +136,14 @@ public class Main {
 
 
     private static void sendACK(DatagramPacket request, DatagramSocket socket, String testline) throws IOException {
-        byte[] ack = MakePacket.makePacket(testline.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, true, false, false, false, false, false), 0, 0);
+        byte[] ack = MakePacket.makePacket(testline.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.ackFlagByte, 0, 0);
         DatagramPacket packet = new DatagramPacket(ack, 0, ack.length, request.getAddress(), request.getPort());
         socket.send(packet);
     }
 
 
     private static void sendErrorPacket(String errormessage, DatagramPacket request, DatagramSocket socket) throws IOException {
-        byte[] errorPacket = MakePacket.makePacket(errormessage.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, false, false, false, false, true, false), 0, MakePacket.getSessionNumber(request.getData()));
+        byte[] errorPacket = MakePacket.makePacket(errormessage.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.errorFlagByte, 0, MakePacket.getSessionNumber(request.getData()));
         DatagramPacket errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length, request.getAddress(), request.getPort());
         socket.send(errorPacketDatagram);
 
@@ -181,7 +181,7 @@ public class Main {
         File currentDirectory = new File(".");
         String listOfFiles = "";
         listOfFiles = getStringOfNamesOfAllTheFilesInTheDirectory(currentDirectory, listOfFiles);
-        byte[] listPacket = MakePacket.makePacket(listOfFiles.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.setFlags(false, true, false, false, false, false, false), 0, 0);
+        byte[] listPacket = MakePacket.makePacket(listOfFiles.getBytes(), 0, MakePacket.getSequenceNumber(request.getData()) + 1, MakePacket.ackFlagByte, 0, 0);
         DatagramPacket packet = new DatagramPacket(listPacket, listPacket.length, request.getAddress(), request.getPort());
         System.out.println("Send list of files");
         socket.send(packet);
