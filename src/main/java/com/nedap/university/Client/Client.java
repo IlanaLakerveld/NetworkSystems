@@ -37,10 +37,10 @@ public class Client {
     public void getRequest(String filename) throws IOException, ServerGivesErrorException {
         setGotACK(false);
         DatagramSocket datagramSocket = new DatagramSocket();
-        MakeAndSendInitialPacket(filename, datagramSocket, MakePacket.setFlags(false, false, false, true, false, false, false));
+        MakeAndSendInitialPacket(filename, datagramSocket, MakePacket.getFlagByte);
         // call the function that handles receiving a packet
         DatagramPacket ackAnswer = getAcknowledgementPacket(datagramSocket);
-        if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)) {
+        if(MakePacket.getFlag(ackAnswer.getData()) == MakePacket.ackFlagByte) {
             Receiver receiver = new Receiver();
             byte[] receivedFile = receiver.receiver(datagramSocket, address, port);
             // Check if there is not an error occurred while receiving the file.
@@ -60,13 +60,13 @@ public class Client {
             throw new FileNotExistException("Can not send it because file does not exist");
         } else {
             DatagramSocket socket = new DatagramSocket();
-            MakeAndSendInitialPacket(filename, socket, MakePacket.setFlags(false, false, true, false, false, false, false));
+            MakeAndSendInitialPacket(filename, socket, MakePacket.sendFlagByte);
             DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
             // check if the input is an acknowledgement or an error.
-            if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
+            if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.errorFlagByte) {
                 String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
                 throw new ServerGivesErrorException("ERROR " + errorMessage.trim());
-            } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)) {
+            } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.ackFlagByte) {
                 byte[] bytefile = Fileclass.loadFile(file);
                 Sending send = new Sending(socket);
                 send.sending(bytefile, ackAnswer.getAddress(), ackAnswer.getPort());
@@ -89,13 +89,13 @@ public class Client {
         }
         else {
             DatagramSocket socket = new DatagramSocket();
-            MakeAndSendInitialPacket(filename, socket, MakePacket.setFlags(false, false, true, false, true, false, false));
+            MakeAndSendInitialPacket(filename, socket, MakePacket.replaceFlagByte);
             DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
             // check if the input is an acknowledgement or an error.
-            if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
+            if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.errorFlagByte) {
                 String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
                 throw new FileNotExistException("ERROR " + errorMessage.trim());
-            } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)) {
+            } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.ackFlagByte) {
                 System.out.println("File is deleted");
                 byte[] bytefile = Fileclass.loadFile(file);
                 Sending send = new Sending(socket);
@@ -115,13 +115,13 @@ public class Client {
     public void deleteRequest(String filename) throws FileNotExistException, IOException {
         setGotACK(false);
         DatagramSocket socket = new DatagramSocket();
-        MakeAndSendInitialPacket(filename, socket,MakePacket.setFlags(false, false, false, false, true, false, false));
+        MakeAndSendInitialPacket(filename, socket,MakePacket.removeFlagByte);
         DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
         System.out.println(new String(ackAnswer.getData()));
-        if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
+        if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.errorFlagByte) {
             String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
             throw new FileNotExistException("ERROR " + errorMessage.trim());
-        } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)) {
+        } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.ackFlagByte) {
             System.out.println("File is deleted");
         }
         else{
@@ -132,13 +132,13 @@ public class Client {
     public void getListRequest() throws IOException, ServerGivesErrorException {
         setGotACK(false);
         DatagramSocket socket = new DatagramSocket();
-        MakeAndSendInitialPacket("", socket,MakePacket.setFlags(false, false, false, false, false, false, true));
+        MakeAndSendInitialPacket("", socket,MakePacket.listFlagByte);
         DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
 
-        if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
+        if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.errorFlagByte) {
             String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
             throw new ServerGivesErrorException("ERROR " + errorMessage.trim());
-        } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.setFlags(false, true, false, false, false, false, false)) {
+        } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.ackFlagByte) {
             System.out.println("The names of the files are :");
             String list = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
             list = list.trim();
@@ -163,7 +163,7 @@ public class Client {
         byte[] packet = MakePacket.makePacket(filename.getBytes(), sequenceNumber, 0, flag, 0, 0);
         DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
         socket.send(packetToSend);
-        new TimeOut(50, socket ,packetToSend, this) ;
+        new TimeOut(150, socket ,packetToSend, this) ;
     }
 
 
