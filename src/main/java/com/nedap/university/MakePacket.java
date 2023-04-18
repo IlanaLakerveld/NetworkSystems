@@ -18,7 +18,9 @@ public final class MakePacket {
     public static final byte replaceFlagByte = MakePacket.setFlags(false,false,true,false,true,false,false);
     public static final byte errorFlagByte  = MakePacket.setFlags(false,false,false,false,false,true,false);
     public static final byte finFlagByte = MakePacket.setFlags(true, false,false,false,false,false,false);
-    /**
+
+
+    /** Makes a packet with  a header
      * @param payload actual data
      * @return the packet you can send nicely ordered.
      */
@@ -31,7 +33,9 @@ public final class MakePacket {
     }
 
     /**
+     *
      * This makes an array bytes that created a header as described in my report.
+     * This is the structure of the header
      * |            SequenceNumber          |
      * |                 Ack                |
      * |data offset|flags|   Window size    |
@@ -44,7 +48,6 @@ public final class MakePacket {
      * @param sessionNumber The current session number
      * @return The personalizedHeader as a byte array
      */
-
 
     public static byte[] personalizedHeader(int sequenceNumber, int ack, byte flags, int windowSize, int sessionNumber,byte[] payload) {
         byte[] header = new byte[personalizedHeaderLength];
