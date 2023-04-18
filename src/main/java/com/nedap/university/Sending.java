@@ -79,7 +79,7 @@ public class Sending {
 
                     if (filePointer == file.length) {
                         finished = true;
-                        System.out.println("finished");
+                        System.out.println("Finished");
                     }
                 } else {
                     System.out.println("this is not an acknowledgement packet");
