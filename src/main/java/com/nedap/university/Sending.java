@@ -21,7 +21,7 @@ public class Sending {
 
 
     // TOdo wil je dit static houden of wil je dit kunnen veranderen.??
-    static final int DATASIZE = 1024;   // max. number of user data bytes in each packet
+    static final int DATASIZE = 512;   // max. number of user data bytes in each packet
     public int lastFrameAcknowlegded;
     public int lastFrameSend ;
     public  boolean finished ;
@@ -64,18 +64,17 @@ public class Sending {
                 }
                 // send the packet
                 byte[] data = Arrays.copyOfRange(file, lastFrameSend, (lastFrameSend + lengthPayloadSend));
-                byte[] packet = MakePacket.makePacket(data, (lastFrameSend + lengthPayloadSend), 0, flagsByte, 1, sessionNumber);
+                byte[] packet = MakePacket.makePacket(data, (lastFrameSend + lengthPayloadSend), 0, flagsByte, windowSize, sessionNumber);
                 DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
                 socket.send(packetToSend);
-
+                System.out.println("last frame received is : "+ lastFrameSend);
                 //set time out
                 lastFrameSend += lengthPayloadSend;
-                System.out.println("last packet send is " + lastFrameSend);
                 new TimeOut(1000, this, packetToSend);
             }
             else{
                 try {
-                    sleep(100) ;
+                    sleep(10) ;
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -111,6 +110,7 @@ public class Sending {
 
 
                 socket.receive(obtainedDatagram);
+                System.out.println("packet received "+ MakePacket.getAckNumber(obtainedDatagram.getData()));
 
 
                 // todo ? wil je hier niet ook checken of ack flag is set dan kan namelijk ook error flag gezet worden
@@ -123,7 +123,6 @@ public class Sending {
                         // check is this is the acknowledgement number you expect
                         int ack = MakePacket.getAckNumber(ackPacket);
                         if (ack == (lastFrameAcknowlegded + lengthPayloadSend) || ack == lastFrameAcknowlegded + (DATASIZE - MakePacket.personalizedHeaderLength)) { // werkt alleen zo als stop & wait is
-                            System.out.println("updating the lak");
                             lastFrameAcknowlegded += lengthPayloadSend;
                             while (!ACKBuffer.isEmpty()) {
                                 if (ACKBuffer.contains(lastFrameAcknowlegded + (DATASIZE - MakePacket.personalizedHeaderLength))) {

@@ -18,18 +18,19 @@ import java.util.Map;
 public class Receiver {
 
     //todo change name
-    static final int DATASIZE = 1024;   // max. number data bytes in each packet
+    static final int DATASIZE = 512;   // max. number data bytes in each packet
 
     public byte[] receiver(DatagramSocket socket, InetAddress address, int port) throws IOException {
 
         byte[] file = new byte[0];
         int lastReceivedPacket = 0;
-        int windowSize = 8;
         boolean finished = false;
         boolean gotFinflag = false;
+        int windowSize;
         Map<Integer, byte[]> bufferPackets = new HashMap<>();
         int normalPayloadLength = DATASIZE - MakePacket.personalizedHeaderLength;
-        int lastPacketLength =  0 ;
+        int lastPacketLength = 0;
+
 
         while (!finished) {
 
@@ -50,6 +51,7 @@ public class Receiver {
             } else {
 
                 // sending an acknowledgement
+                windowSize = MakePacket.getWindowsize(receivedPacket);
                 int seqNum = MakePacket.getSequenceNumber(receivedPacket);
                 byte[] payloadLength = lengthOfPayload(request.getLength() - MakePacket.personalizedHeaderLength);
                 byte[] ack = MakePacket.makePacket(new byte[]{1}, 0, seqNum, MakePacket.setFlags(false, true, false, false, false, false, false), windowSize, MakePacket.getSessionNumber(receivedPacket));
@@ -58,22 +60,21 @@ public class Receiver {
 
                 // check if this is the last packet
                 if ((receivedPacket[9] & 1) == 1) { //if fin flag is set
+                    System.out.println(MakePacket.getSequenceNumber(receivedPacket));
                     gotFinflag = true;
-                    lastPacketLength = receivedPacket.length - MakePacket.personalizedHeaderLength  ;
+                    lastPacketLength = request.getLength() - MakePacket.personalizedHeaderLength;
                     System.out.println("fin is received");
                 }
 
 
                 // only if it is a new packet then you need to add it
-                if (seqNum == lastReceivedPacket + (request.getLength() - MakePacket.personalizedHeaderLength)) {
+                if (seqNum == lastReceivedPacket + normalPayloadLength) {
 
                     int oldLength = file.length;
                     file = Arrays.copyOf(file, oldLength + (receivedPacket.length - MakePacket.personalizedHeaderLength));
                     System.arraycopy(receivedPacket, MakePacket.personalizedHeaderLength, file, oldLength, (receivedPacket.length - MakePacket.personalizedHeaderLength));
                     lastReceivedPacket = seqNum;
-                    if((receivedPacket[9] & 1) == 1){
-                        finished = true  ;
-                    }
+                    //TODO als flag true is moet je ook de ander case melden
 
                     while (!bufferPackets.isEmpty()) {
                         if (bufferPackets.containsKey(lastReceivedPacket + normalPayloadLength)) {
@@ -82,20 +83,26 @@ public class Receiver {
                             System.arraycopy(bufferPackets.get(lastReceivedPacket + normalPayloadLength), MakePacket.personalizedHeaderLength, file, oldLength, normalPayloadLength);
                             bufferPackets.remove(lastReceivedPacket + normalPayloadLength);
                             lastReceivedPacket += normalPayloadLength;
-                        }
-                        else if(gotFinflag && bufferPackets.containsKey(lastReceivedPacket + lastPacketLength)){
+                        } else if (gotFinflag && bufferPackets.containsKey(lastReceivedPacket + lastPacketLength)) {
                             oldLength = file.length;
                             file = Arrays.copyOf(file, oldLength + lastPacketLength);
                             System.arraycopy(bufferPackets.get(lastReceivedPacket + lastPacketLength), MakePacket.personalizedHeaderLength, file, oldLength, lastPacketLength);
-                            lastReceivedPacket += lastPacketLength ;
+                            lastReceivedPacket += lastPacketLength;
                             bufferPackets.remove(lastReceivedPacket + lastPacketLength);
-                            finished = true ;
+                            finished = true;
 
-                        }
-                        else{
-                            break ;
+                        } else {
+                            break;
                         }
                     }
+                }
+                else if(gotFinflag && seqNum == lastReceivedPacket + lastPacketLength){
+                    int oldLength = file.length;
+                    file = Arrays.copyOf(file, oldLength + lastPacketLength);
+                    System.arraycopy(receivedPacket, MakePacket.personalizedHeaderLength, file, oldLength, lastPacketLength);
+                    lastReceivedPacket += lastPacketLength;
+                    finished = true;
+
                 } else if (seqNum > lastReceivedPacket) {
                     bufferPackets.put(seqNum, receivedPacket);
                 }
