@@ -27,8 +27,6 @@ public class TimeOutTaskRequest extends TimerTask {
     public void run() {
 
         boolean alreadyACKt = client.isGotACK() ;
-        System.out.println("boolean is "+ alreadyACKt);
-
         if(!alreadyACKt){
             System.out.println("resent the packet");
             try {
@@ -40,7 +38,7 @@ public class TimeOutTaskRequest extends TimerTask {
 
         }
         else{
-            System.out.println("already acked the request");
+//            System.out.println("already acked the request");
 
         }
         timer.cancel();
