@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.net.*;
 
 /**
- * This is the class client. This uses the classes Receiver,Sending, Makepacket and Fileclass.
+ * This is the class client. This uses the classes Receiver,Sending, Make Packet and File class.
  * It assumes that it receive packet according to the packet header of Make packet.
  */
 
@@ -87,12 +87,12 @@ public class Client {
             String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
             throw new ServerGivesErrorException("ERROR " + errorMessage.trim());
         } else if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.ackFlagByte) {
-            byte[] bytefile = Fileclass.loadFile(file);
+            byte[] byteFile = Fileclass.loadFile(file);
             Sending send = new Sending(socket);
-            send.sending(bytefile, ackAnswer.getAddress(), ackAnswer.getPort());
-            System.out.println("Send");
+            send.sending(byteFile, ackAnswer.getAddress(), ackAnswer.getPort());
+            System.out.println("The file is sent");
         } else {
-            System.out.println("it's not the ack packet that is received or an error");
+            System.out.println("It's not the ack packet that is received or an error");
 
         }
 

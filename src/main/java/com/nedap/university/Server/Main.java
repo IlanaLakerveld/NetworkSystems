@@ -1,19 +1,9 @@
 package com.nedap.university.Server;
-
-import com.nedap.university.Fileclass;
-import com.nedap.university.MakePacket;
-import com.nedap.university.Receiver;
-import com.nedap.university.Sending;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
 /**
- * This is the server side. The request from the clients are come in here.
- * Type of request the server can handel : GET,SEND,REMOVE,(REPLACE)
+ * This starts the server.
  */
 
 public class Main {
@@ -30,7 +20,7 @@ public class Main {
         int port = 62830;
         try (DatagramSocket socket = new DatagramSocket(port)) {
 
-            System.out.println("local port is : " + socket.getLocalPort());
+            System.out.println("Local port is : " + socket.getLocalPort());
             initShutdownHook();
             Server server = new Server() ;
             server.activeServer(socket);

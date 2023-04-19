@@ -40,7 +40,7 @@ public class ClientTUI {
         System.out.println(help);
         boolean running = true;
         while (running) {
-            System.out.println("type your input");
+            System.out.println("Type your input");
 
             String input = scanner.nextLine();
             String[] splitLine = input.split("~");
@@ -48,28 +48,28 @@ public class ClientTUI {
             switch (splitLine[0].toUpperCase()) {
                 case "GET" -> {
                     if (splitLine.length == 1) {
-                        System.out.println("please add a filename");
+                        System.out.println("Please add a filename");
                     } else {
                         getRequest(client, splitLine[1]);
                     }
                 }
                 case "SEND" -> {
                     if (splitLine.length == 1) {
-                        System.out.println("please add a filename");
+                        System.out.println("Please add a filename");
                     } else {
                         sendRequest(client, splitLine[1]);
                     }
                 }
                 case "DELETE" -> {
                     if (splitLine.length == 1) {
-                        System.out.println("please add a filename");
+                        System.out.println("Please add a filename");
                     } else {
                         deleteRequest(client, splitLine[1]);
                     }
                 }
                 case "REPLACE" -> {
                     if (splitLine.length == 1) {
-                        System.out.println("please add a filename");
+                        System.out.println("Please add a filename");
                     } else {
                         replaceRequest(client, splitLine[1]);
                     }
@@ -135,9 +135,9 @@ public class ClientTUI {
         try {
             client.getListRequest();
         } catch (IOException e) {
-            System.out.println("something wrong with the connection, so you can not get the list. ");
+            System.out.println("Something wrong with the connection, so you can not get the list. ");
         } catch (ServerGivesErrorException e) {
-            System.out.println("list not returned");
+            System.out.println("List not returned");
         }
     }
 
@@ -152,7 +152,7 @@ public class ClientTUI {
         boolean okeInputAddress = false;
         InetAddress addressServer = null;
         while (!okeInputAddress) {
-            System.out.println("what server address do you want? ");
+            System.out.println("What server address do you want? ");
             String inputAddress = scanner.nextLine();
 
             try {
@@ -160,7 +160,7 @@ public class ClientTUI {
                 addressServer = InetAddress.getByName(inputAddress);
                 okeInputAddress = true;
             } catch (UnknownHostException e) {
-                System.out.println("please choose a correct input address");
+                System.out.println("Please choose a correct input address");
 
             }
 
