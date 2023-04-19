@@ -33,7 +33,7 @@ public class Sending {
         boolean finished = false;
         int windowSize = 1; // Stop en wait protocol
         // todo WIl je dit een lege byte flag houdne
-        byte flagsByte = MakePacket.setFlags(false, false, false, false, false, false, false);
+        byte flagsByte = MakePacket.setFlags(false, true, false, false, false, false, false);
         int sessionNumber = (int) (Math.random() * 1000);  // Todo change kan nu alleen maar number tussen 1-1000 zijn wil je deze niet naar je server plaatsen? 
         System.out.println("total number of packets are " + totalNumberOfPackets);
 
@@ -62,7 +62,7 @@ public class Sending {
                 byte[] ackPacket = new byte[MakePacket.personalizedHeaderLength + 1];
                 DatagramPacket obtainedDatagram = new DatagramPacket(ackPacket, ackPacket.length);
                 socket.receive(obtainedDatagram);
-                // todo ? wil je hier niet ook checken of ack flag is set dan kan namelijk ook error flag gezet worden 
+                // todo ? wil je hier niet ook checken of ack flag is set dan kan namelijk ook error flag gezet worden
                 if (MakePacket.ackFlagByte == MakePacket.getFlag(obtainedDatagram.getData())) {
 
                     // check if the packet is correct.

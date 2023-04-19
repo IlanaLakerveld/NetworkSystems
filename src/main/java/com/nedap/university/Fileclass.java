@@ -7,7 +7,6 @@ import java.io.*;
  */
 public final class Fileclass {
 
-    // TODO will je hier andere manier exceptions opvangen
     public static byte[] loadFile(File file) {
 
         try (FileInputStream fileStream = new FileInputStream(file)) {

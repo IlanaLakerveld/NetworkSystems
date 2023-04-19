@@ -60,8 +60,10 @@ public class Server {
             System.out.println("file does not exist");
             sendErrorPacket("file does not exist", request, socket);
         } else {
-            byte[] byteFile = Fileclass.loadFile(file);
             sendACK(request, socket, "getRequestsAck");
+
+            byte[] byteFile = Fileclass.loadFile(file);
+            System.out.println("start sending ");
             Sending send = new Sending(socket);
             send.sending(byteFile, request.getAddress(), request.getPort());
             System.out.println("Done Sending");

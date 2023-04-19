@@ -24,6 +24,7 @@ public class ClientTUI {
             DELETE~filename to remove a filename from the server
             REPLACE~filename to replace a file
             LISTFILES to get al list of possible files
+            HELP to get this information againT
             QUIT stop the program""";
 
 
