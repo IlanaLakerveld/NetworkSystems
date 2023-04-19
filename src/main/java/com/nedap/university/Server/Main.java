@@ -125,7 +125,6 @@ public class Main {
             System.out.println("file already exist");
             sendErrorPacket("file already exist, if you want to replace this file try replace", request, socket);
         } else {
-
             sendACK(request, socket, "receivefile");
 
             Receiver receiver = new Receiver();

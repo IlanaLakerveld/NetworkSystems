@@ -40,10 +40,10 @@ public class Receiver {
             DatagramPacket request = new DatagramPacket(receivedPacket, receivedPacket.length);
             socket.receive(request);
             // flag is set if something went wrong
-            if (MakePacket.getFlag(request.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
-                String errorMessage = new String(receivedPacket, MakePacket.personalizedHeaderLength, request.getLength());
-                return ("ERROR" + errorMessage.trim()).getBytes();
-            }
+//            if (MakePacket.getFlag(request.getData()) == MakePacket.setFlags(false, false, false, false, false, true, false)) {
+//                String errorMessage = new String(receivedPacket, MakePacket.personalizedHeaderLength, request.getLength());
+//                return ("ERROR" + errorMessage.trim()).getBytes();
+//            }
 
 
             int checksum = MakePacket.getCheckSumInteger(receivedPacket);
@@ -64,7 +64,7 @@ public class Receiver {
                     System.out.println(MakePacket.getSequenceNumber(receivedPacket));
                     gotFinflag = true;
                     lastPacketLength = request.getLength() - MakePacket.personalizedHeaderLength;
-                    System.out.println("fin is received");
+
                 }
 
 

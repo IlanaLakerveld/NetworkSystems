@@ -16,17 +16,21 @@ import static java.lang.Thread.sleep;
 /**
  * This class is used to send a file.
  * This class assumes The file exist.
+ * This class is divided into two part on two different threads. One for sending the data and one for receiving the acknowledgements.
+ * IMPORTANT : The data size on this size should be equal to the data size at receiver side
+ *
  */
 public class Sending {
 
     static final int DATASIZE = 512;   // max. number of user data bytes in each packet. ONLY CHANGE AT BOTH SIDES
-    public int lastFrameAcknowlegded;
-    public int lastFrameSend ;
+    public int lastFrameAcknowlegded; // last frame that is acknowledged.
+    public int lastFrameSend ; // last frame send
     public  boolean finished ;
     public DatagramSocket socket;
-    public int lengthPayloadSend ;
+    public int lengthPayloadSend ; //length of data to send in bytes.
+    public  int lastPacketSIZE ;
 
-    byte[] file ;
+    byte[] file ; // the file you want to send in bytes
 
     public Sending(DatagramSocket socket) {
         this.socket = socket;
@@ -39,16 +43,21 @@ public class Sending {
         lastFrameAcknowlegded = 0;
         lastFrameSend = 0;
         finished = false;
-        int windowSize = 32; // Sliding window protocol with fixed window size
 
-        byte flagsByte = MakePacket.setFlags(false, false, false, false, false, false, false);
+
+        int windowSize = 8; // Sliding window protocol with fixed window size
+        byte flagsByte = MakePacket.setFlags(false, true, false, false, false, false, false);
         int sessionNumber = (int) (Math.random() * 1000);  // Todo change kan nu alleen maar number tussen 1-1000 zijn wil je deze niet naar je server plaatsen? 
         System.out.println("total number of packets are " + totalNumberOfPackets);
         lengthPayloadSend = 0;
+
+
+        // Start the thread that handles receiving the acknowledgement and updating the lastFrameAcknowlegded.
         Thread tread = new Thread(new recevingACK());
         tread.start();
 
         while (!finished) {
+            lastPacketSIZE =  file.length% totalNumberOfPackets ;
 
             // only send when window size is not reached
             if ((lastFrameSend - lastFrameAcknowlegded) <= sessionNumber && lastFrameSend < file.length) {
@@ -64,12 +73,12 @@ public class Sending {
                 byte[] packet = MakePacket.makePacket(data, (lastFrameSend + lengthPayloadSend), 0, flagsByte, windowSize, sessionNumber);
                 DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
                 socket.send(packetToSend);
+                lastFrameSend += lengthPayloadSend; // update last frame to send
                 //set time out
-                lastFrameSend += lengthPayloadSend;
                 new TimeOut(1000, this, packetToSend);
             }
             else{
-                // WINDOW size is reached sleep so you can receive some acknowlegdements
+                // WINDOW size is reached sleep, so you can receive some acknowledgements
                 try {
                     sleep(10) ;
                 } catch (InterruptedException e) {
@@ -78,8 +87,6 @@ public class Sending {
             }
 
         }
-
-
 
     }
 
@@ -116,13 +123,13 @@ public class Sending {
 
                         // check is this is the acknowledgement number you expect
                         int ack = MakePacket.getAckNumber(ackPacket);
-                        if (ack == (lastFrameAcknowlegded + lengthPayloadSend) || ack == (lastFrameAcknowlegded + (DATASIZE - MakePacket.personalizedHeaderLength))) { // werkt alleen zo als stop & wait is
+                        if (ack == (lastFrameAcknowlegded + lastPacketSIZE) || ack == (lastFrameAcknowlegded + (DATASIZE - MakePacket.personalizedHeaderLength))) { // werkt alleen zo als stop & wait is
                             lastFrameAcknowlegded += lengthPayloadSend;
                             while (!ACKBuffer.isEmpty()) {
                                 if (ACKBuffer.contains(lastFrameAcknowlegded + (DATASIZE - MakePacket.personalizedHeaderLength))) {
                                     lastFrameAcknowlegded += (DATASIZE - MakePacket.personalizedHeaderLength);
                                     ACKBuffer.remove((DATASIZE - MakePacket.personalizedHeaderLength));
-                                } else if (ACKBuffer.contains(lastFrameAcknowlegded + lengthPayloadSend)) {
+                                } else if (ACKBuffer.contains(lastFrameAcknowlegded + lastPacketSIZE)) {
                                     lastFrameAcknowlegded += (DATASIZE - MakePacket.personalizedHeaderLength);
                                     ACKBuffer.remove((DATASIZE - MakePacket.personalizedHeaderLength));
                                 } else {
