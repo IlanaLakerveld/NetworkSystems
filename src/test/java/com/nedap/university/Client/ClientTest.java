@@ -11,6 +11,11 @@ import java.net.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Some test for the client side.
+ * Important you need to have someFile.pdf in your folder
+ */
+
 class ClientTest {
     Client client;
 
@@ -41,7 +46,7 @@ class ClientTest {
      */
     @Test
     public void sendRequestTest() {
-        // File bestaat niet dus krijg je die system out terug
+        // File does not exist so you cent an error
         assertThrows(FileNotExistException.class, this::notExistedInputTest);
 
         // Gets back an error message test
@@ -65,7 +70,7 @@ class ClientTest {
      * This function is used for sendRequestTest()
      */
     private void getErrorTest() throws ServerGivesErrorException, FileNotExistException, IOException {
-        client.sendRequest("somefile.pdf");
+        client.sendRequest("someFile.pdf");
     }
 
 
@@ -74,7 +79,7 @@ class ClientTest {
      */
     public class TestServerGivesError implements Runnable {
         public void run() {
-            DatagramSocket datagramSocket = null;
+            DatagramSocket datagramSocket;
             try {
                 datagramSocket = new DatagramSocket(23456);
             } catch (SocketException e) {
@@ -89,7 +94,7 @@ class ClientTest {
             }
             // only the flags is important
             byte[] errorPacket = MakePacket.makePacket("Some Error Message here".getBytes(), 0, 0, MakePacket.setFlags(false, false, false, false, false, true, false), 0, 0);
-            DatagramPacket errorPacketDatagram = null;
+            DatagramPacket errorPacketDatagram;
             errorPacketDatagram = new DatagramPacket(errorPacket, errorPacket.length, request.getAddress(), request.getPort());
 
             try {
@@ -117,7 +122,7 @@ class ClientTest {
      * This function is used for deleteRequestTest
      */
     private void getErrorTestDelete() throws ServerGivesErrorException, FileNotExistException, IOException {
-        client.deleteRequest("somefile.pdf");
+        client.deleteRequest("someFile.pdf");
     }
 
     /**
@@ -147,13 +152,20 @@ class ClientTest {
 
     }
 
+    /**
+     * Used in replaceTest
+     */
+
     private void notExistedInputReplaceTest() throws FileNotExistException, IOException {
         client.replaceRequest("notExistedFile.png");
     }
 
+    /**
+     * You can see in output stream that it print the print string
+     */
     @Test
     public void printFilenameFromDataPacketTest() {
-        String printString = "naam1\nnaam2\nnaam3";
+        String printString = "name1\nname2\nname3";
         byte[] input = MakePacket.makePacket(printString.getBytes(), 0, 0, (byte) 0, 0, 0);
         DatagramPacket a = new DatagramPacket(input, input.length);
         client.printFilenameFromDataPacket(a);

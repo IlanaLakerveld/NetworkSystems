@@ -15,12 +15,10 @@ import java.util.Arrays;
  */
 public class Sending {
 
-
-    // TOdo wil je dit static houden of wil je dit kunnen veranderen.??
-    static final int DATASIZE = 512;   // max. number of user data bytes in each packet
+    static final int DATASIZE = 512;   // max. number of user data bytes in each packet should be the same on sending side
     public int filePointer;
     public DatagramSocket socket;
-    public boolean timerhasTriedToManyTimes ;
+    public boolean timerHasTriedToManyTimes;
 
     public Sending(DatagramSocket socket) {
         this.socket = socket;
@@ -28,71 +26,66 @@ public class Sending {
 
     public void sending(byte[] file, InetAddress address, int port) throws IOException {
 
-        timerhasTriedToManyTimes = false;
-        int totalNumberOfPackets = ((file.length / (DATASIZE - MakePacket.personalizedHeaderLength)) + 1); // naar boven afronden
-        filePointer = 0; // Todo change? is dit niet sequment number or acknowlegded number ?
+        timerHasTriedToManyTimes = false;
+        int totalNumberOfPackets = ((file.length / (DATASIZE - MakePacket.personalizedHeaderLength)) + 1);
+        filePointer = 0;
         boolean finished = false;
-        int windowSize = 1; // Stop en wait protocol
-        // todo WIl je dit een lege byte flag houdne
+        int windowSize = 1; // Stop and wait protocol
         byte flagsByte = MakePacket.setFlags(false, true, false, false, false, false, false);
-        int sessionNumber = (int) (Math.random() * 1000);  // Todo change kan nu alleen maar number tussen 1-1000 zijn wil je deze niet naar je server plaatsen? 
+        int sessionNumber = (int) (Math.random() * 1000);
         System.out.println("total number of packets are " + totalNumberOfPackets);
 
-
+        // While not finished sending the file
         while (!finished) {
 
-            // create and send a new packet of appropriate size
+            // Create and send a new packet of appropriate size
             int lengthPayloadSend = Math.min(DATASIZE - MakePacket.personalizedHeaderLength, file.length - filePointer);
-            // check if it is the last file you are going to send 
+            // Check if it is the last file you are going to send
             if (lengthPayloadSend + filePointer == file.length) {
                 flagsByte = MakePacket.finFlagByte;
-
             }
-            // send the packet
+            // Send the packet
             byte[] data = Arrays.copyOfRange(file, filePointer, (filePointer + lengthPayloadSend));
             byte[] packet = MakePacket.makePacket(data, (filePointer + lengthPayloadSend), 0, flagsByte, 1, sessionNumber);
             DatagramPacket packetToSend = new DatagramPacket(packet, packet.length, address, port);
             socket.send(packetToSend);
 
-            //set time out
+            //Set time out
             new TimeOut(100, this, packetToSend,0);
 
-            // waiting for the acknowledgement
+            // Waiting for the acknowledgement
             boolean stopSending = true;
             while (stopSending) {
                 byte[] ackPacket = new byte[MakePacket.personalizedHeaderLength + 1];
                 DatagramPacket obtainedDatagram = new DatagramPacket(ackPacket, ackPacket.length);
                 socket.receive(obtainedDatagram);
-                // todo ? wil je hier niet ook checken of ack flag is set dan kan namelijk ook error flag gezet worden
                 if (MakePacket.ackFlagByte == MakePacket.getFlag(obtainedDatagram.getData())) {
 
-                    // check if the packet is correct.
+                    // Check if the packet is correct.
                     int checksum = MakePacket.getCheckSumInteger(ackPacket);
                     if (checksum == MakePacket.checksum(MakePacket.getInputForChecksumWithoutHeader(ackPacket))) {
 
-                        // check is this is the acknowledgement number you expect
+                        // Check is this is the acknowledgement number you expect
                         int ack = MakePacket.getAckNumber(ackPacket);
-                        if (ack == (filePointer + lengthPayloadSend)) { // werkt alleen zo als stop & wait is
+                        if (ack == (filePointer + lengthPayloadSend)) {
                             filePointer += lengthPayloadSend;
                             stopSending = false;
                         }
                     }
-
+                    // if the last packet is acknowledged
                     if (filePointer == file.length) {
                         finished = true;
                         System.out.println("Finished");
                     }
                 } else {
-
+                    // if the last packet is sent and resent, after a while it tried to many times and stop resending
                     if(lengthPayloadSend + filePointer == file.length){
-                        if(timerhasTriedToManyTimes){
+                        if(timerHasTriedToManyTimes){
                             finished= true ;
                             stopSending = false ;
                         }
 
                     }
-                    System.out.println("this is not an acknowledgement packet");
-
                 }
             }
 

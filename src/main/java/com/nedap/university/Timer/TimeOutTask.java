@@ -49,7 +49,7 @@ public class TimeOutTask extends TimerTask {
                 }
             }
             else {
-                sendingClass.timerhasTriedToManyTimes =true ;
+                sendingClass.timerHasTriedToManyTimes =true ;
                 timer.cancel();
             }
         } else {

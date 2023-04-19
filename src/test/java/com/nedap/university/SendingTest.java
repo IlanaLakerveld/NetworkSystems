@@ -8,9 +8,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+/*
+IMPORTANT : YOU CAN SEE THAT IS RESENT SOMETHING BUT THIS IS NOT A WORKING TEST!
+ */
 class SendingTest {
 
-    // TODO can see that you resent something by a time out but it is not a working test
     @Test
     public void ResentTest(){
         int port = 62826;
