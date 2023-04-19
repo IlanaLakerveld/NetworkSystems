@@ -31,7 +31,7 @@ public class TimeOutTaskRequest extends TimerTask {
             System.out.println("resent the packet");
             try {
                 socket.send(packet);
-                new TimeOut(100, socket,packet,client);
+                new TimeOut(2000, socket,packet,client);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

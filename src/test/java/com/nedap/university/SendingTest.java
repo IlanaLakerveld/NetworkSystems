@@ -8,8 +8,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class SendingTest {
 
     // TODO can see that you resent something by a time out but it is not a working test
@@ -23,7 +21,7 @@ class SendingTest {
             throw new RuntimeException(e);
         }
 
-        File file = new File("/Users/ilana.lakerveld/Documents/NetworkSystems/project/nu-module-2-mod2.2023/example_files/medium.pdf");
+        File file = new File("example_files/medium.pdf");
         byte[] bytefile = Fileclass.loadFile(file);
         Sending send = new Sending(socketServer);
         try {

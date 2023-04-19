@@ -10,7 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * This class test the functions is the Make Packet class
  */
 class MakePacketTest {
-
+    /**
+     * Test the checksum with some different input
+     */
     @Test
     public void testingTheChecksum(){
         byte [] arr = new byte[100] ;
@@ -34,11 +36,15 @@ class MakePacketTest {
 
     }
 
+    /**
+     * Checks if the function that makes the input for the checksum does this correctly.
+     *
+     */
     @Test
     public void getInputforChecksumWithoutHeaderTest(){
         byte[] byteArray = new byte[]{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1} ;
         byte[] output = MakePacket.getInputForChecksumWithoutHeader(byteArray);
-        // check if the checksum values are zero
+        // output 12 and 13 is where the checksum is in the header this should not be givin as input for the checksum and set to zero
         assertEquals(0,output[12]) ;
         assertEquals(0,output[13]);
         // Check if length of the byte array
@@ -46,6 +52,9 @@ class MakePacketTest {
 
     }
 
+    /**
+     * Checks if the getSomething functions correspond with the actual file.
+     */
     @Test
     public void personalizedHeaderTest(){
         int sequenceNumber = 2838506 ;
@@ -61,10 +70,14 @@ class MakePacketTest {
         assertEquals(flags, MakePacket.getFlag(output));
         assertEquals(windowSize,MakePacket.getWindowsize(output));
         assertEquals(sessionNumber,MakePacket.getSessionNumber(output));
-        //todo do you want exeptions for te grote getallen?
+
 
     }
 
+
+    /**
+     * Test if the output of test flags correspond with the flags set
+     */
     @Test
     public void setFlagsTest(){
         byte flags = MakePacket.setFlags(false, false,false,false,false,false,false);

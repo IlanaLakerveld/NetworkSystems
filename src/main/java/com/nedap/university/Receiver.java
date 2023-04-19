@@ -30,10 +30,10 @@ public class Receiver {
             DatagramPacket request = new DatagramPacket(receivedPacket, receivedPacket.length);
             socket.receive(request);
             // flag is set if something went wrong
-            if (MakePacket.getFlag(request.getData()) == MakePacket.errorFlagByte) {
-                String errorMessage = new String(receivedPacket, MakePacket.personalizedHeaderLength, request.getLength());
-                return ("ERROR" + errorMessage.trim()).getBytes()  ;
-            }
+//            if (MakePacket.getFlag(request.getData()) == MakePacket.errorFlagByte) {
+//                String errorMessage = new String(receivedPacket, MakePacket.personalizedHeaderLength, request.getLength());
+//                return ("ERROR" + errorMessage.trim()).getBytes()  ;
+//            }
 
 
 

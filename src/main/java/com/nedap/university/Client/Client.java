@@ -48,6 +48,10 @@ public class Client {
         MakeAndSendInitialPacket(filename, datagramSocket, MakePacket.getFlagByte);
         // call the function that handles receiving a packet
         DatagramPacket ackAnswer = getAcknowledgementPacket(datagramSocket);
+        if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.errorFlagByte) {
+            String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
+            throw new ServerGivesErrorException("ERROR " + errorMessage.trim());
+        }
         if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.ackFlagByte) {
             Receiver receiver = new Receiver();
             byte[] receivedFile = receiver.receiver(datagramSocket, address, port);
@@ -59,6 +63,7 @@ public class Client {
                 Fileclass.makeFileFromBytes(filename, receivedFile);
             }
         }
+
 
     }
 
@@ -141,7 +146,6 @@ public class Client {
         DatagramSocket socket = new DatagramSocket();
         MakeAndSendInitialPacket(filename, socket, MakePacket.removeFlagByte);
         DatagramPacket ackAnswer = getAcknowledgementPacket(socket);
-        System.out.println(new String(ackAnswer.getData()));
         if (MakePacket.getFlag(ackAnswer.getData()) == MakePacket.errorFlagByte) {
             String errorMessage = new String(ackAnswer.getData(), MakePacket.personalizedHeaderLength, ackAnswer.getLength());
             throw new FileNotExistException("ERROR " + errorMessage.trim());
@@ -191,7 +195,7 @@ public class Client {
      * Socket waits for an input from the server and set the boolean got ack op true when they got the in packet
      * @param socket socket
      * @return the acknowledgement packet
-     * @throws IOException
+     * @throws IOException socket error
      */
 
     private DatagramPacket getAcknowledgementPacket(DatagramSocket socket) throws IOException {
@@ -204,11 +208,11 @@ public class Client {
 
 
     /**
-     * Makes a request packet and send it and makes a timer for a time out
+     * Makes a request packet and send it and makes a timer for a timeout
      * @param filename filename
      * @param socket socket
      * @param flag set flags of things to send
-     * @throws IOException
+     * @throws IOException  socket error
      */
     private void MakeAndSendInitialPacket(String filename, DatagramSocket socket, byte flag) throws IOException {
         int sequenceNumber = (int) (Math.random() * 10000);
@@ -224,7 +228,7 @@ public class Client {
      *
      * @param filename name of the file
      * @return returns the file is the file exits otherwise it gives an error.
-     * @throws FileNotExistException
+     * @throws FileNotExistException file does not exist
      */
     private File checkIfFileExist(String filename) throws FileNotExistException {
         File file = new File(filename);
