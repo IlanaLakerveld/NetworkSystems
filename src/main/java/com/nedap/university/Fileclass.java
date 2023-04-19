@@ -24,21 +24,17 @@ public final class Fileclass {
 
     }
 
-    public static void makeFileFromBytes(String filename, byte[] fileInBytes) {
+    public static void makeFileFromBytes(String filename, byte[] fileInBytes) throws IOException {
         String filenameTrimmed = filename.trim();
         File fileToWrite = new File(filenameTrimmed);
+
         // because file does not exist
-        try {
-            fileToWrite.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        fileToWrite.createNewFile();
+
         try (FileOutputStream fileStream = new FileOutputStream(fileToWrite)) {
             for (byte fileContent : fileInBytes) {
                 fileStream.write(fileContent);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
 
 

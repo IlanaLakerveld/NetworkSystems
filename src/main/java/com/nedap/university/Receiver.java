@@ -14,8 +14,7 @@ import java.util.Arrays;
  */
 public class Receiver {
 
-    //todo change name
-    static final int DATASIZE = 512;   // max. number data bytes in each packet
+    static final int DATASIZE = 512;   // max. number data bytes in each packet should be the same size as on the SENDING SIDE
 
     public byte[] receiver(DatagramSocket socket, InetAddress address, int port) throws IOException {
 
@@ -28,27 +27,20 @@ public class Receiver {
             // receive packet
             byte[] receivedPacket = new byte[DATASIZE];
             DatagramPacket request = new DatagramPacket(receivedPacket, receivedPacket.length);
-            socket.receive(request);
-            // flag is set if something went wrong
-//            if (MakePacket.getFlag(request.getData()) == MakePacket.errorFlagByte) {
-//                String errorMessage = new String(receivedPacket, MakePacket.personalizedHeaderLength, request.getLength());
-//                return ("ERROR" + errorMessage.trim()).getBytes()  ;
-//            }
+            socket.receive(request); // is a blocking method
 
-
-
+            // Checksum check
             int checksum = MakePacket.getCheckSumInteger(receivedPacket);
             if ((checksum != MakePacket.checksum(MakePacket.getInputForChecksumWithoutHeader(receivedPacket)))) { //
                 System.out.println("checksum is incorrect");
             } else {
 
-
-                // sending an acknowledgement
+                // Received a packet correctly so sending an acknowledgement
                 int seqNum = MakePacket.getSequenceNumber(receivedPacket);
                 byte[] ack = MakePacket.makePacket(new byte[]{1}, 0, seqNum, MakePacket.ackFlagByte, windowSize, MakePacket.getSessionNumber(receivedPacket));
                 DatagramPacket packet = new DatagramPacket(ack, 0, ack.length, address, port);
                 socket.send(packet);
-                // only if it is a new packet then you need to add it
+                // Only if it is a new packet then you need to add it
                 if (seqNum == lastReceivedPacket + (request.getLength() - MakePacket.personalizedHeaderLength)) { // need to change if it's not  stop & wait
                     // Update the file
                     int oldLength = file.length;
@@ -56,7 +48,7 @@ public class Receiver {
                     System.arraycopy(receivedPacket, MakePacket.personalizedHeaderLength, file, oldLength, (receivedPacket.length - MakePacket.personalizedHeaderLength));
                     lastReceivedPacket = seqNum;
 
-                    // check if this is the last packet
+                    // Check if this is the last packet
                     if ((MakePacket.getFlag(receivedPacket) & 1) == 1) { //if fin flag is set
                         finished = true;
                         System.out.println("finished receiving");

@@ -41,7 +41,7 @@ class MakePacketTest {
      *
      */
     @Test
-    public void getInputforChecksumWithoutHeaderTest(){
+    public void getInputForChecksumWithoutHeaderTest(){
         byte[] byteArray = new byte[]{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1} ;
         byte[] output = MakePacket.getInputForChecksumWithoutHeader(byteArray);
         // output 12 and 13 is where the checksum is in the header this should not be givin as input for the checksum and set to zero
