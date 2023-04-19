@@ -19,11 +19,12 @@ The following classes and packages are necessary for the client part (on the lap
 
 
 
-To get the files to the raspberry pi you have to type : 
+To get the files to the raspberry pi you have to type  : 
 ```
 ./gradlew deploy
 ```
 This will deploy the the folder nu-module2-mod2.2023 to the raspberry pi, which contains all the necessary files. 
+
 
 
 If you start the raspberry pi you the server side should automatically start you can test this with : 

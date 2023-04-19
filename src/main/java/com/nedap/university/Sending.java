@@ -20,6 +20,7 @@ public class Sending {
     static final int DATASIZE = 512;   // max. number of user data bytes in each packet
     public int filePointer;
     public DatagramSocket socket;
+    public boolean timerhasTriedToManyTimes ;
 
     public Sending(DatagramSocket socket) {
         this.socket = socket;
@@ -27,7 +28,7 @@ public class Sending {
 
     public void sending(byte[] file, InetAddress address, int port) throws IOException {
 
-
+        timerhasTriedToManyTimes = false;
         int totalNumberOfPackets = ((file.length / (DATASIZE - MakePacket.personalizedHeaderLength)) + 1); // naar boven afronden
         filePointer = 0; // Todo change? is dit niet sequment number or acknowlegded number ?
         boolean finished = false;
@@ -54,7 +55,7 @@ public class Sending {
             socket.send(packetToSend);
 
             //set time out
-            new TimeOut(100, this, packetToSend);
+            new TimeOut(100, this, packetToSend,0);
 
             // waiting for the acknowledgement
             boolean stopSending = true;
@@ -82,6 +83,14 @@ public class Sending {
                         System.out.println("Finished");
                     }
                 } else {
+
+                    if(lengthPayloadSend + filePointer == file.length){
+                        if(timerhasTriedToManyTimes){
+                            finished= true ;
+                            stopSending = false ;
+                        }
+
+                    }
                     System.out.println("this is not an acknowledgement packet");
 
                 }
