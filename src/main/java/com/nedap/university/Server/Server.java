@@ -86,6 +86,7 @@ public class Server {
             if (!(new String(receivedFile).equals("error"))) {
                 Fileclass.makeFileFromBytes(filename, receivedFile);
             }
+            System.out.println("Uploaded the packet");
 
 
         }
