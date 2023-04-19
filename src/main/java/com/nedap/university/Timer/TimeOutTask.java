@@ -18,6 +18,7 @@ public class TimeOutTask extends TimerTask {
 
     private int amount;
 
+
     public TimeOutTask(Timer timer, Sending sendingClass, DatagramPacket datagramPacket, int amount) {
         this.amount = amount;
         this.timer = timer;
@@ -26,7 +27,9 @@ public class TimeOutTask extends TimerTask {
     }
 
     /**
-     * This function will be called when the timer expires.
+     * This function will be called when the timer expires. This checks if this packet is already acknowledged if not it resents it.
+     * To avoid infinite resending, it ands on to the amount of sending and if this is larger than 20 it stops resending.
+     * If it resents a packet the timer will be set with 100 ms * amount so a packet that is already resents a view times will take longer before it will be checks then the first time it expires.
      */
     @Override
     public void run() {

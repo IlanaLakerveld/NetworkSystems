@@ -8,6 +8,9 @@ import java.net.DatagramSocket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * Will be called when a time out of a request packet goes off
+ */
 public class TimeOutTaskRequest extends TimerTask {
 
     private Timer timer ;
@@ -23,6 +26,9 @@ public class TimeOutTaskRequest extends TimerTask {
 
     }
 
+    /**
+     * will check if the packet is already acknowledges and if not it will resend it and set a new timer.
+     */
     @Override
     public void run() {
 
@@ -35,10 +41,6 @@ public class TimeOutTaskRequest extends TimerTask {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
-        }
-        else{
-//            System.out.println("already acked the request");
 
         }
         timer.cancel();
