@@ -14,7 +14,6 @@ import java.util.Timer;
 public class TimeOut {
     private Timer timer ;
     public int milliSeconds ;
-    private int amount ;
 
     /**
      * This constructor is used when setting a timer wil sending a (part of) file
@@ -26,7 +25,6 @@ public class TimeOut {
      */
     public TimeOut(int milliSeconds, Sending send, DatagramPacket datagramPacket,int amountOfResending ){
         timer = new Timer() ;
-        this.amount = amountOfResending ;
         this.milliSeconds = milliSeconds;
         timer.schedule(new TimeOutTask(timer, send,datagramPacket, amountOfResending),milliSeconds);
     }
