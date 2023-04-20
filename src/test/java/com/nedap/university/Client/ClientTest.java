@@ -35,11 +35,6 @@ class ClientTest {
 
     }
 
-    @Test
-    public void getRequestTest() {
-        //TOdo
-    }
-
 
     /**
      * Test if it gets errors on the write time.
