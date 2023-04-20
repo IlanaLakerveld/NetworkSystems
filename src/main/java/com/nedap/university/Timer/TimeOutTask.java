@@ -37,8 +37,8 @@ public class TimeOutTask extends TimerTask {
         if (amount < 20) {
             if (sequenceNumber > sendingClass.filePointer) {
                 System.out.println("file pointer" + sendingClass.filePointer + "is smaller then sequence number " + sequenceNumber + "so the sequence number is not acknowledged yet, so resending");
-                System.out.println("amount is :"+ amount);
-                amount = amount +1 ;
+                System.out.println("amount of retries are :"+ amount);
+                amount = amount +1 ; // Amount of reties
 
                 try {
                     sendingClass.socket.send(datagramPacket);
