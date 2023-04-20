@@ -43,5 +43,5 @@ The Inetadresss : 172.16.1.1
 The port number:  62830 (is as shown when you type systemctl status num2) 
 
 
-If you want to run the test classes read the instructions (if any)  carefully. 
+If you want to run the test classes read the instructions (if any) carefully. 
 The ResentTest will not stop running but gives an example of how the timer resend a packet. 
